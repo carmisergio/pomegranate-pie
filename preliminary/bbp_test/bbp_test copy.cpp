@@ -131,35 +131,69 @@ int same_digits(std::string a, std::string b, std::string c)
 int main()
 {
 
-    HexAggregator aggregator;
+    mpf_class pi_dec = 0;
+
+    std::string old_pi = "";
+    std::string old_pi_2 = "";
+    std::string new_pi = "";
+    std::string new_pi_hex = "";
+
+    // Power of 16
+    mpf_class pow = 1;
+
+    // Decimal digit
+    mpf_class digit_dec;
 
     int true_digits = 0;
 
     long long i = 0;
     while (true_digits < PRECISION)
     {
-        std::cout << "Here 1" << std::endl;
+        // 1 hex digit = 1 binary digit
+        pi_dec.set_prec(i * 4);
+        pow.set_prec(i * 4);
+        digit_dec.set_prec(i * 4);
 
+        // Compute new hex digit
+        // std::cout << "Here!"
+        //           << " " << i << std::endl;
         short digit = calc_pi_digit(i);
+        // std::cout << std::hex << digit << std::endl;
+        // std::cout << "Here not!" << std::endl;
 
-        std::cout << "Here 2" << std::endl;
+        // Compute new pi
+        new_pi_hex += hex_digit(digit);
 
-        // Add digit to aggregator
-        aggregator.insert_digit(digit);
+        digit_dec = digit;
+        digit_dec /= pow;
 
-        std::cout << "Here 3" << std::endl;
+        pi_dec += digit_dec;
+
+        if (i == 0)
+            new_pi_hex += '.';
+
+        pow *= 16;
 
         i++;
 
         // Find number of correct digits
-        true_digits = aggregator.n_digits_dec();
-
-        std::cout << "Here 4" << std::endl;
-
+        std::stringstream ss;
+        ss << std::setprecision(PRECISION) << pi_dec;
+        new_pi = ss.str();
+        true_digits = same_digits(new_pi, old_pi, old_pi_2) - 1; // Account for
+        // std::cout << new_pi << std::endl;
+        // std::cout << old_pi << std::endl;
         std::cout << i << " " << true_digits << std::endl;
+        old_pi_2 = old_pi;
+        old_pi = new_pi;
     }
 
-    std::string new_pi = aggregator.get_dec();
+    std::cout << new_pi_hex << std::endl;
+
+    if (calc_pi.substr(0, new_pi_hex.size()) == new_pi_hex)
+        std::cout << "OK!" << std::endl;
+    else
+        std::cout << "ERROR!" << std::endl;
 
     std::cout << new_pi << std::endl;
 

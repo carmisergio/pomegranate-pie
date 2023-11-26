@@ -1,5 +1,5 @@
 EXECUTABLE = bbp_test
-SOURCES = bbp_test.cpp
+SOURCES = bbp_test.cpp hex_aggregator.hpp
 
 CC=g++
 CARGS=-Wall
