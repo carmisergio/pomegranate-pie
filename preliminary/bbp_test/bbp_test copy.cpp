@@ -147,7 +147,7 @@ int main()
     int true_digits = 0;
 
     long long i = 0;
-    while (true_digits < PRECISION)
+    while (true_digits < DIGITS)
     {
         // 1 hex digit = 1 binary digit
         pi_dec.set_prec(i * 4);
@@ -178,7 +178,7 @@ int main()
 
         // Find number of correct digits
         std::stringstream ss;
-        ss << std::setprecision(PRECISION) << pi_dec;
+        ss << std::setprecision(DIGITS) << pi_dec;
         new_pi = ss.str();
         true_digits = same_digits(new_pi, old_pi, old_pi_2) - 1; // Account for
         // std::cout << new_pi << std::endl;
