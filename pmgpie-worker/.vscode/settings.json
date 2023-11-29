@@ -1,0 +1,6 @@
+{
+  "files.associations": {
+    "*.in": "template_header",
+    "stdexcept": "cpp"
+  }
+}

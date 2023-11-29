@@ -7,7 +7,9 @@
  * @date 29/11/2023
  */
 
-#include <iostream>
+#pragma once
+
+#include "pmgpie_worker_config.hpp"
 
 /**
  * PMGPIeWorker Class
@@ -18,7 +20,9 @@ class PMGPIeWorker
 {
 
 public:
+    PMGPIeWorker(config::pmgpie_worker_config conf);
     void run();
 
 private:
+    config::pmgpie_worker_config conf; // Configuration
 };

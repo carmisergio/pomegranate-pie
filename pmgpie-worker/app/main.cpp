@@ -12,11 +12,23 @@
 // Main class
 #include "pmgpie_worker.hpp"
 
-int main()
-{
-    std::cout << "Test" << std::endl;
+// Libraries
+#include "config.hpp" // CLI parser
 
-    PMGPIeWorker pmgpie_worker;
+int main(int argc, char *argv[])
+{
+    // Parse CLI arguments
+    config::pmgpie_worker_config config;
+    try
+    {
+        config = config::configure(argc, argv);
+    }
+    catch (config::ParseArgsError _)
+    {
+        return 1;
+    }
+
+    PMGPIeWorker pmgpie_worker(config);
 
     // Run main class
     pmgpie_worker.run();
