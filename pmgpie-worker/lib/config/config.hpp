@@ -33,4 +33,13 @@ namespace config
         const char *what();
     };
 
+    /**
+     * Exception which signals to not continue execution but exit cleanly
+     */
+    class ExitCleanly : public std::exception
+    {
+    public:
+        const char *what();
+    };
+
 }

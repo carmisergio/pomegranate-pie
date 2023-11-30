@@ -27,6 +27,10 @@ int main(int argc, char *argv[])
     {
         return 1;
     }
+    catch (config::ExitCleanly _)
+    {
+        return 0;
+    }
 
     PMGPIeWorker pmgpie_worker(config);
 

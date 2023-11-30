@@ -27,7 +27,9 @@ PMGPIeWorker::PMGPIeWorker(config::pmgpie_worker_config conf)
 void PMGPIeWorker::run()
 {
     std::cout << "Hello from PMGPIe Worker class!" << std::endl;
-    std::cout << "  Coordinator IP: " << this->conf.coordinator_ip.value() << std::endl;
+    std::cout << "  Coordinator Host: " << this->conf.coordinator_host.value() << std::endl;
     if (this->conf.worker_id.has_value())
         std::cout << "  Worker Node ID: " << this->conf.worker_id.value() << std::endl;
+    if (this->conf.threads.has_value())
+        std::cout << "  Threads: " << this->conf.threads.value() << std::endl;
 }

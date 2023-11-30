@@ -15,6 +15,16 @@
 #include "arg_strings.hpp"
 
 /**
+ * Prints CLI message
+ *
+ * @param msg message to print
+ */
+void print_message(std::string msg)
+{
+    std::cout << msg << std::endl;
+}
+
+/**
  * Parse CLI arguments
  *
  * @param argc CLI argument count
@@ -30,9 +40,11 @@ config::pmgpie_worker_config parse_args(int argc, char *argv[])
         throw config::ParseArgsError();
 
     // Load arguments into vector
-    const std::vector<std::string_view> args(argv + 1, argv + argc);
+    const std::vector<std::string> args(argv + 1, argv + argc);
 
     config::pmgpie_worker_config conf;
+
+    bool display_help = false;
 
     // Iterate over arguments
     auto arg = args.begin();
@@ -45,14 +57,56 @@ config::pmgpie_worker_config parse_args(int argc, char *argv[])
             // Check if there is an argument to consume
             arg++;
             if (arg != args.end())
+            {
                 conf.worker_id = *arg;
+            }
             else
+            {
+                print_message(MSG_OPT_VALUE_MISSING);
                 throw config::ParseArgsError();
+            }
+        }
+        // -t or --threads arg
+        else if (*arg == ARG_THREADS || *arg == ARG_THREADS_SHORT)
+        {
+            // Try to consume option
+            // Check if there is an argument to consume
+            arg++;
+            if (arg != args.end())
+            {
+                try
+                {
+                    conf.threads = std::stoi(*arg);
+                }
+                catch (std::exception _)
+                {
+                    print_message(MSG_OPT_VALUE_INVALID);
+                    throw config::ParseArgsError();
+                }
+            }
+            else
+            {
+                print_message(MSG_OPT_VALUE_MISSING);
+                throw config::ParseArgsError();
+            }
+        }
+        // -h or --heallp arg
+        else if (*arg == ARG_HELP || *arg == ARG_HELP_SHORT)
+        {
+            print_message(MSG_HELP);
+            throw config::ExitCleanly();
         }
         else
         {
-            // Consume coordinator IP
-            conf.coordinator_ip = *arg;
+            // Check if we already have a coordinator host
+            if (conf.coordinator_host.has_value())
+            {
+                print_message(MSG_BAD_OPTION);
+                throw config::ParseArgsError();
+            }
+
+            // Consume coordinator host
+            conf.coordinator_host = *arg;
         }
 
         // Next arg
@@ -60,18 +114,6 @@ config::pmgpie_worker_config parse_args(int argc, char *argv[])
     }
 
     return conf;
-}
-
-/**
- * Prints CLI usage message
- *
- * @param argc CLI argument count
- * @param argv[] CLI arguments
- * @throws config::ParseArgsError if argument parsing fails
- */
-void print_usage_message()
-{
-    std::cout << USAGE_MESSAGE << std::endl;
 }
 
 config::pmgpie_worker_config config::configure(int argc, char *argv[])
@@ -85,15 +127,19 @@ config::pmgpie_worker_config config::configure(int argc, char *argv[])
         conf = parse_args(argc, argv);
 
         // Check that required parameter is met
-        if (!conf.coordinator_ip.has_value())
+        if (!conf.coordinator_host.has_value())
+        {
+            print_message(MSG_COORD_HOST_MISSING);
             throw config::ParseArgsError();
+        }
     }
-    catch (config::ParseArgsError _)
+    catch (std::exception &e)
     {
-        // Print usage message
-        print_usage_message();
+        // Print "try --help" message
+        print_message(MSG_TRY_HELP);
 
-        throw config::ParseArgsError();
+        // Print usage message
+        throw;
     }
 
     return conf;
@@ -102,4 +148,9 @@ config::pmgpie_worker_config config::configure(int argc, char *argv[])
 const char *config::ParseArgsError::what()
 {
     return "Error parsing arguments";
+}
+
+const char *config::ExitCleanly::what()
+{
+    return "Cannot continue execution";
 }
