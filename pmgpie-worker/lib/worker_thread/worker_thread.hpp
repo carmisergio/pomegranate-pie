@@ -14,8 +14,10 @@
 #include <condition_variable>
 #include <atomic>
 #include <optional>
+#include <functional>
 
 #include "pi.hpp"
+#include "worker_thread.hpp"
 
 namespace worker_thread
 {
@@ -29,11 +31,37 @@ namespace worker_thread
     };
 
     /**
+     * Representation of a work unit result
+     */
+    class WorkUnitResult
+    {
+    public:
+        // Pseudo-constructors
+        static WorkUnitResult succesful(std::string digits, long long start);
+        static WorkUnitResult unsuccesful();
+
+        // Getters
+        bool success();
+        std::string get_digits();
+        long long get_start();
+
+    private:
+        bool was_succesful; // Whether the computation was succesful or not
+        std::string digits;
+        long long start;
+    };
+
+    /**
      * WorkerThread class
      */
     class WorkerThread
     {
     public:
+        /**
+         * Constructor
+         */
+        WorkerThread(int thread_id);
+
         /**
          * Start worker thread
          */
@@ -43,6 +71,13 @@ namespace worker_thread
          * Stop worker thread
          */
         void stop();
+
+        /**
+         * Set result callback
+         *
+         * @param callback callback funciton
+         */
+        void set_result_callback(std::function<void(WorkUnitResult)> callback);
 
         /**
          * Tells the thread to start computing a work unit
@@ -57,6 +92,11 @@ namespace worker_thread
         std::atomic<bool> busy; // True if thread is computing
         std::atomic<bool> run;  // Variable to notify thread of when to exit
 
+        int thread_id;
+
+        // Result callback
+        std::optional<std::function<void(WorkUnitResult)>> result_callback;
+
         // Thread
         std::thread thread; // Actual controlled thread
         std::mutex thread_mutex;
@@ -70,6 +110,7 @@ namespace worker_thread
 
         void worker_function();
         void compute_new_work_unit();
+        void submit_result(WorkUnitResult result);
     };
 
     /**

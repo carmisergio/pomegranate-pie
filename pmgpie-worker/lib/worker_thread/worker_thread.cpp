@@ -11,15 +11,27 @@
 
 #include "worker_thread.hpp"
 
+worker_thread::WorkerThread::WorkerThread(int thread_id)
+{
+    // Constructor
+    this->thread_id = thread_id;
+}
+
 void worker_thread::WorkerThread::start()
 {
     // Start thread
     this->run = true;
     this->thread = std::thread(&worker_thread::WorkerThread::worker_function, this);
+
+    std::cout << "Thread started!: " << this->thread_id << std::endl;
 }
 
 void worker_thread::WorkerThread::stop()
 {
+    // Check if thread is already not running
+    if (!this->run)
+        return;
+
     // Tell any running calculation to stop
     this->pi_gen.interrupt();
 
@@ -34,6 +46,11 @@ void worker_thread::WorkerThread::stop()
 
     // Wait for thread to exit
     this->thread.join();
+}
+void worker_thread::WorkerThread::set_result_callback(std::function<void(worker_thread::WorkUnitResult)> callback)
+{
+    // Set callback
+    this->result_callback = callback;
 }
 
 void worker_thread::WorkerThread::submit_work_unit(WorkUnit work_unit)
@@ -72,7 +89,7 @@ void worker_thread::WorkerThread::worker_function()
 
         this->busy = false;
     }
-    std::cout << "Exiting thread" << std::endl;
+    std::cout << "Exiting thread: " << this->thread_id << std::endl;
 }
 
 /**
@@ -82,26 +99,102 @@ void worker_thread::WorkerThread::compute_new_work_unit()
 {
     if (this->next_work_unit.has_value())
     {
-        std::cout << "Computing new work unit" << std::endl;
+        std::cout << "Computing new work unit on thread: " << this->thread_id << std::endl;
+
+        // Create result object
+        worker_thread::WorkUnitResult result;
 
         // Generate digits of pi
-        std::string digits;
         try
         {
-            digits = this->pi_gen.generate_pi_digits(
+            std::string digits = this->pi_gen.generate_pi_digits(
                 this->next_work_unit.value().start,
                 this->next_work_unit.value().n);
+
+            result = worker_thread::WorkUnitResult::succesful(digits, this->next_work_unit.value().start);
         }
         catch (pi::ExecutionInterrupted _)
         {
             // Swallow exception
+            result = worker_thread::WorkUnitResult::unsuccesful();
         }
+
+        // Submit result to main thread
+        this->submit_result(result);
 
         // There is no new work unit
         this->next_work_unit.reset();
-
-        std::cout << "New digits: " << digits << std::endl;
     }
+}
+
+/**
+ * Submit result to callback
+ *
+ * @param result work unit result
+ */
+void worker_thread::WorkerThread::submit_result(worker_thread::WorkUnitResult result)
+{
+    // Check that we have the callback set
+    if (this->result_callback.has_value())
+        this->result_callback.value()(result);
+    else
+        throw std::runtime_error("Callback not set!");
+}
+
+/**
+ * Constructs a WorkUnitResult for a succesful work unit
+ */
+worker_thread::WorkUnitResult worker_thread::WorkUnitResult::succesful(std::string digits, long long start)
+{
+    worker_thread::WorkUnitResult result;
+
+    result.was_succesful = true;
+    result.digits = digits;
+    result.start = start;
+
+    return result;
+}
+
+/**
+ * Constructs a WorkUnitResult for an unsuccesful work unit
+ */
+worker_thread::WorkUnitResult worker_thread::WorkUnitResult::unsuccesful()
+{
+    worker_thread::WorkUnitResult result;
+
+    result.was_succesful = false;
+
+    return result;
+}
+
+/**
+ * Gets success
+ *
+ * @returns true if work unit was succesful
+ */
+bool worker_thread::WorkUnitResult::success()
+{
+    return this->was_succesful;
+}
+
+/**
+ * Gets digits
+ *
+ * @returns digits
+ */
+std::string worker_thread::WorkUnitResult::get_digits()
+{
+    return this->digits;
+}
+
+/**
+ * Gets start point of this work unit
+ *
+ * @returns work unit start
+ */
+long long worker_thread::WorkUnitResult::get_start()
+{
+    return this->start;
 }
 
 const char *worker_thread::WorkerBusy::what()
