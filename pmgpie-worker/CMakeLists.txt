@@ -4,7 +4,8 @@ project(pmgpie-worker VERSION 0.0)
 
 # Compilation settings
 set(CMAKE_CXX_STANDARD 17)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3 -static-libstdc++")
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -O3")
 
 # Source subdirectory
 add_subdirectory(app)
