@@ -2,6 +2,7 @@
   "files.associations": {
     "*.in": "template_header",
     "stdexcept": "cpp",
-    "condition_variable": "cpp"
+    "condition_variable": "cpp",
+    "system_error": "cpp"
   }
 }

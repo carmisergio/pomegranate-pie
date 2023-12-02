@@ -46,37 +46,44 @@ void PMGPIeWorker::run()
     // Setup CTRL-C events
     this->setup_ctrlc_handler();
 
-    std::cout << "Hello from PMGPIe Worker class!" << std::endl;
-    std::cout << "  Coordinator Host: " << this->conf.coordinator_host.value() << std::endl;
-    if (this->conf.worker_id.has_value())
-        std::cout << "  Worker Node ID: " << this->conf.worker_id.value() << std::endl;
-    if (this->conf.threads.has_value())
-        std::cout << "  Threads: " << this->conf.threads.value() << std::endl;
+    std::cout << "[MAIN] PMGPIe Worker starting" << std::endl;
 
     // Spawn worker threads
     this->spawn_threads();
 
     // Start all worker threads
+    std::cout << "[MAIN] Starting worker threads" << std::endl;
     this->start_all_threads();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+    this->running = true;
 
-    int i = 0;
-    for (auto &thread : this->worker_threads)
-    {
-        thread->submit_work_unit(worker_thread::WorkUnit{i, 1000});
-        i += 1000;
-    }
+    // Network Client setup
+    net::NetworkClient nc(this->conf.coordinator_host.value());
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+    // Set dispatch work unit callback for network client
+    nc.set_dispatch_work_unit_callback([this](worker_thread::WorkUnit work_unit, int thread)
+                                       { this->dispatch_work_unit(work_unit, thread); });
 
-    for (auto &thread : this->worker_threads)
-    {
-        thread->submit_work_unit(worker_thread::WorkUnit{i, 1000});
-        i += 1000;
-    }
+    nc.run();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(30000));
+    // std::this_thread::sleep_for(std::chrono::milliseconds(3000));
+
+    // int i = 0;
+    // for (auto &thread : this->worker_threads)
+    // {
+    //     thread->submit_work_unit(worker_thread::WorkUnit{i, 1000});
+    //     i += 1000;
+    // }
+
+    // std::this_thread::sleep_for(std::chrono::milliseconds(10000));
+
+    // for (auto &thread : this->worker_threads)
+    // {
+    //     thread->submit_work_unit(worker_thread::WorkUnit{i, 1000});
+    //     i += 1000;
+    // }
+
+    // std::this_thread::sleep_for(std::chrono::milliseconds(30000));
 
     // Stop and wait for all worker threads
     this->stop_all_threads();
@@ -90,7 +97,7 @@ void PMGPIeWorker::spawn_threads()
     // Get number of threads to spwan
     int n_threads = this->get_worker_thread_n();
 
-    std::cout << "Spawning " << n_threads << " threads..." << std::endl;
+    std::cout << "[MAIN] Spawning " << n_threads << " worker threads" << std::endl;
 
     // Spawn threads
     for (int i = 0; i < n_threads; i++)
@@ -119,6 +126,18 @@ int PMGPIeWorker::get_worker_thread_n()
 
     // Get number of available threads on this machine
     return std::thread::hardware_concurrency();
+}
+
+/**
+ * Dispatches a work unit to the specified thread
+ */
+void PMGPIeWorker::dispatch_work_unit(worker_thread::WorkUnit work_unit, int thread)
+{
+    // Check if thread exists
+    if (thread < 0 || thread >= this->worker_threads.size())
+        throw std::logic_error("Thread does not exist!"); // TODO replace with custom exception
+
+    this->worker_threads.at(thread)->submit_work_unit(work_unit);
 }
 
 /**
@@ -164,4 +183,7 @@ void PMGPIeWorker::ctrlc_handler()
 
     // Don't propagate error
     this->stop_all_threads();
+
+    // Stop main thread
+    this->running = false;
 }

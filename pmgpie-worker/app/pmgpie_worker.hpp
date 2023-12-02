@@ -14,6 +14,7 @@
 #include "pmgpie_worker_config.hpp"
 #include "worker_thread.hpp"
 #include "ctrl_c.hpp"
+#include "net_client.hpp"
 
 /**
  * PMGPIeWorker Class
@@ -42,4 +43,7 @@ private:
     void start_all_threads();
     void stop_all_threads();
     int get_worker_thread_n();
+    void dispatch_work_unit(worker_thread::WorkUnit work_unit, int thread);
+
+    bool running;
 };

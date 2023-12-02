@@ -23,11 +23,13 @@ void worker_thread::WorkerThread::start()
     this->run = true;
     this->thread = std::thread(&worker_thread::WorkerThread::worker_function, this);
 
-    std::cout << "Thread started!: " << this->thread_id << std::endl;
+    std::cout << "[WORKER THREAD " << this->thread_id << "] Ready!" << std::endl;
 }
 
 void worker_thread::WorkerThread::stop()
 {
+    std::cout << "[WORKER THREAD " << this->thread_id << "] Exiting..." << std::endl;
+
     // Check if thread is already not running
     if (!this->run)
         return;
@@ -89,7 +91,7 @@ void worker_thread::WorkerThread::worker_function()
 
         this->busy = false;
     }
-    std::cout << "Exiting thread: " << this->thread_id << std::endl;
+    std::cout << "[WORKER THREAD " << this->thread_id << "] Stopped" << std::endl;
 }
 
 /**
