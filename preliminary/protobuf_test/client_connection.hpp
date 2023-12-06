@@ -31,9 +31,6 @@ public:
           writer_thr(&ClientConnection::writer, this)
     {
 
-        // Set KEEP_ALIVE sockopt
-        set_keep_alive();
-
         // Save config
         this->host = host;
         this->port = port;
@@ -145,7 +142,10 @@ private:
     // Connect the socket
     void do_connect()
     {
-        std::cout << "[NETWORK] Disconnected! " << std::endl;
+        if (!this->first_connection)
+            std::cout << "[CLUSTER] Disconnected! " << this->first_connection << std::endl;
+        else
+            this->first_connection = false;
 
         asio::error_code ec;
 
@@ -170,13 +170,13 @@ private:
             }
             first_try = false;
 
-            std::cout << "[NETWORK] Trying to connect to  " << host << ":" << std::to_string(port) << std::endl;
+            std::cout << "[CLUSTER] Trying to connect to  " << host << ":" << std::to_string(port) << std::endl;
 
             // Resolve hostname
             endpoints = resolver.resolve(query, ec);
             if (ec)
             {
-                std::cout << "[NETWORK] Address resolution failed:  " << ec.message() << std::endl;
+                std::cout << "[CLUSTER] Address resolution failed:  " << ec.message() << std::endl;
                 continue;
             }
 
@@ -184,13 +184,16 @@ private:
             asio::connect(this->socket, endpoints.begin(), ec);
             if (ec)
             {
-                std::cout << "[NETWORK] Connection failed:  " << ec.message() << std::endl;
+                std::cout << "[CLUSTER] Connection failed:  " << ec.message() << std::endl;
                 continue;
             }
 
+            // Set KEEP_ALIVE sockopt
+            set_keep_alive();
+
             this->is_connected = true;
 
-            std::cout << "[NETWORK] Connected! " << std::endl;
+            std::cout << "[CLUSTER] Connected! " << std::endl;
 
             // Notify of connection
             this->connected_callback();
@@ -223,8 +226,6 @@ private:
 
     void message_received(std::string msg)
     {
-        std::cout << "Message received: " << msg;
-
         this->message_received_callback(msg);
     }
 
@@ -254,12 +255,14 @@ private:
     std::string host;
     short port;
 
+    bool first_connection = true;
+
     std::thread reader_thr;
     std::thread writer_thr;
     std::thread connector_thr;
 
     std::atomic<bool> is_connected;
-    std::atomic<bool> run = true;
+    std::atomic<bool> run{true};
 
     std::function<void(std::string)> message_received_callback;
     std::function<void()> connected_callback;

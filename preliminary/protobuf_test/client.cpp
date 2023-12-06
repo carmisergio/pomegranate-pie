@@ -12,7 +12,7 @@ int main()
     std::cout << "Starting client..." << std::endl;
 
     ClientConnection connection(
-        "localhost", 2301,
+        "192.168.1.122", 2301,
 
         [](std::string msg)
         { std::cout << "Client received: " << msg << std::endl; },
@@ -25,7 +25,7 @@ int main()
     int i = 0;
     while (true)
     {
-        std::string message = "Hi mel " + std::to_string(i);
+        std::string message = "Test " + std::to_string(i);
 
         std::cout << "Seding: " << message << std::endl;
 

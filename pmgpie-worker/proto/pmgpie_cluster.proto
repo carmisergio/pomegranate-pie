@@ -1,0 +1,36 @@
+syntax="proto3";
+
+package pmgpie_cluster;
+
+message ClientMessage {
+  string worker_id = 1;
+  oneof body {
+   Helo helo = 2;
+   GoodBye goodbye = 3;
+   WorkUnitResult workunitresult = 4;
+   RequestWorkUnit requestworkunit = 5;
+  };
+}
+
+message ServerMessage {
+  oneof body {
+    GoodBye goodbye = 1;
+    DispatchWorkUnit dispatchworkunit = 2;
+  }
+}
+
+message Helo {}
+
+message WorkUnitResult {
+  uint64 start = 1;
+  string digits = 2;
+}
+
+message RequestWorkUnit {}
+
+message DispatchWorkUnit {
+  uint64 start = 1;
+  uint32 n_digits = 2;
+}
+
+message GoodBye {}
