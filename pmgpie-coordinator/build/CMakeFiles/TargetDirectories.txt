@@ -1,0 +1,13 @@
+/home/sergio/dev/pomegranate-pie/pmgpie-coordinator/build/CMakeFiles/proto-objects.dir
+/home/sergio/dev/pomegranate-pie/pmgpie-coordinator/build/CMakeFiles/edit_cache.dir
+/home/sergio/dev/pomegranate-pie/pmgpie-coordinator/build/CMakeFiles/rebuild_cache.dir
+/home/sergio/dev/pomegranate-pie/pmgpie-coordinator/build/app/CMakeFiles/pmgpie-coordinator.dir
+/home/sergio/dev/pomegranate-pie/pmgpie-coordinator/build/app/CMakeFiles/edit_cache.dir
+/home/sergio/dev/pomegranate-pie/pmgpie-coordinator/build/app/CMakeFiles/rebuild_cache.dir
+/home/sergio/dev/pomegranate-pie/pmgpie-coordinator/build/src/CMakeFiles/config.dir
+/home/sergio/dev/pomegranate-pie/pmgpie-coordinator/build/src/CMakeFiles/hex_aggregator.dir
+/home/sergio/dev/pomegranate-pie/pmgpie-coordinator/build/src/CMakeFiles/ctrl_c.dir
+/home/sergio/dev/pomegranate-pie/pmgpie-coordinator/build/src/CMakeFiles/edit_cache.dir
+/home/sergio/dev/pomegranate-pie/pmgpie-coordinator/build/src/CMakeFiles/rebuild_cache.dir
+/home/sergio/dev/pomegranate-pie/pmgpie-coordinator/build/lib/CMakeFiles/edit_cache.dir
+/home/sergio/dev/pomegranate-pie/pmgpie-coordinator/build/lib/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libhex_aggregator.a CMakeFiles/hex_aggregator.dir/hex_aggregator/hex_aggregator.cpp.o
+/usr/bin/ranlib libhex_aggregator.a
