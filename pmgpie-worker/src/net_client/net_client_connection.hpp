@@ -198,7 +198,7 @@ namespace net_client
                 }
 
                 // Set KEEP_ALIVE sockopt
-                set_keep_alive();
+                //set_keep_alive(); // Causes problem on Windows machines
 
                 this->is_connected = true;
 
