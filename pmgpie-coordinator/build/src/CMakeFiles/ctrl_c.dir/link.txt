@@ -1,2 +1,0 @@
-/usr/bin/ar qc libctrl_c.a CMakeFiles/ctrl_c.dir/ctrl_c/ctrl_c.cpp.o
-/usr/bin/ranlib libctrl_c.a
