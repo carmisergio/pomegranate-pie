@@ -5,7 +5,7 @@ add_library(asio INTERFACE)
 target_include_directories(asio INTERFACE "asio/")
 
 # using pkg-config to configure uuid
-find_package(PkgConfig REQUIRED)
+# find_package(PkgConfig REQUIRED)
 
 # UUID library
 add_library(stduuid INTERFACE)
