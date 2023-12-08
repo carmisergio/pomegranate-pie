@@ -16,7 +16,9 @@
 /**
  * Constructor
  */
-PMGPIeCoordinator::PMGPIeCoordinator()
+PMGPIeCoordinator::PMGPIeCoordinator(config::pmgpie_coordinator_config conf)
+    : pmgpie_cluster_server(conf.port.value()),
+      conf(conf)
 {
 }
 
@@ -38,6 +40,8 @@ void PMGPIeCoordinator::run()
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
+
+    // this->tcp_server.send_all("Goodbye!");
 
     std::cout << "Exiting..." << std::endl;
 }

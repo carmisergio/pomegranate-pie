@@ -102,13 +102,14 @@ void PMGPIeWorker::run()
 
     while (this->running.load())
     {
-        for (int j = 0; j < this->worker_thread_pool.n_threads; j++)
-        {
-            this->worker_thread_pool.submit_work_unit(worker_pool::WorkUnit{0, 1000});
-            // std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        }
+        // for (int j = 0; j < this->worker_thread_pool.n_threads; j++)
+        // {
+        //     this->worker_thread_pool.submit_work_unit(worker_pool::WorkUnit{0, 1000});
+        //     // std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        // }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        // std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     std::cout << "Exiting..." << std::endl;

@@ -4,7 +4,7 @@
 src/CMakeFiles/config.dir/config/config.cpp.o: /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/src/config/config.cpp \
   /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/src/config/arg_strings.hpp \
   /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/src/config/config.hpp \
-  /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/src/config/pmgpie_worker_config.hpp \
+  /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/src/config/pmgpie_coordinator_config.hpp \
   /usr/include/alloca.h \
   /usr/include/asm-generic/errno-base.h \
   /usr/include/asm-generic/errno.h \
@@ -313,6 +313,8 @@ src/CMakeFiles/config.dir/config/config.cpp.o: /home/sergio/dev/pomegranate-pie/
 
 /usr/include/bits/waitflags.h:
 
+/usr/include/bits/types/struct_FILE.h:
+
 /usr/include/c++/13.2.1/bits/exception_defines.h:
 
 /usr/include/c++/13.2.1/bits/stl_function.h:
@@ -415,8 +417,6 @@ src/CMakeFiles/config.dir/config/config.cpp.o: /home/sergio/dev/pomegranate-pie/
 
 /usr/include/asm-generic/errno-base.h:
 
-/usr/include/bits/types/struct_FILE.h:
-
 /usr/include/bits/floatn.h:
 
 /usr/include/c++/13.2.1/debug/assertions.h:
@@ -436,8 +436,6 @@ src/CMakeFiles/config.dir/config/config.cpp.o: /home/sergio/dev/pomegranate-pie/
 /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/src/config/arg_strings.hpp:
 
 /usr/include/linux/errno.h:
-
-/home/sergio/dev/pomegranate-pie/pmgpie-coordinator/src/config/pmgpie_worker_config.hpp:
 
 /usr/include/c++/13.2.1/bits/hash_bytes.h:
 
@@ -480,6 +478,8 @@ src/CMakeFiles/config.dir/config/config.cpp.o: /home/sergio/dev/pomegranate-pie/
 /usr/include/bits/types/sigset_t.h:
 
 /usr/include/bits/stdlib-bsearch.h:
+
+/home/sergio/dev/pomegranate-pie/pmgpie-coordinator/src/config/pmgpie_coordinator_config.hpp:
 
 /usr/include/bits/types/timer_t.h:
 

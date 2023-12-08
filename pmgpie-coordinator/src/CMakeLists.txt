@@ -11,3 +11,17 @@ target_include_directories(hex_aggregator PUBLIC "hex_aggregator/")
 # Ctrl-C library
 add_library(ctrl_c ctrl_c/ctrl_c.cpp)
 target_include_directories(ctrl_c PUBLIC "ctrl_c/")
+
+# TCP Server library
+add_library(tcp_server INTERFACE)
+target_include_directories(tcp_server INTERFACE "tcp_server/")
+target_link_libraries(tcp_server INTERFACE tsqueue asio)
+
+# PMGPieClusterServer library
+add_library(pmgpie_cluster_server INTERFACE)
+target_include_directories(pmgpie_cluster_server INTERFACE "pmgpie_cluster_server/")
+target_link_libraries(pmgpie_cluster_server INTERFACE tcp_server proto-objects)
+
+# TSQueue
+add_library(tsqueue INTERFACE)
+target_include_directories(tsqueue INTERFACE "tsqueue/")

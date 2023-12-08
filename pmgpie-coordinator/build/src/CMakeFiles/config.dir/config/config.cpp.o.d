@@ -147,7 +147,7 @@ src/CMakeFiles/config.dir/config/config.cpp.o: \
  /usr/include/c++/13.2.1/bits/stl_bvector.h \
  /usr/include/c++/13.2.1/bits/vector.tcc \
  /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/src/config/config.hpp \
- /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/src/config/pmgpie_worker_config.hpp \
+ /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/src/config/pmgpie_coordinator_config.hpp \
  /usr/include/c++/13.2.1/optional \
  /usr/include/c++/13.2.1/bits/enable_special_members.h \
  /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/src/config/arg_strings.hpp

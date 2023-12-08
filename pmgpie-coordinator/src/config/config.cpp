@@ -4,7 +4,7 @@
  * Handles argument parsing and default configuration
  *
  * @author Sergio Carmine 4CITI <me@sergiocarmi.net>
- * @date 29/11/2023
+ * @date 08/12/2023
  */
 
 #include <iostream>
@@ -29,11 +29,11 @@ void print_message(std::string msg)
  *
  * @param argc CLI argument count
  * @param argv[] CLI arguments
- * @returns pmgpie_worker_config struct containing configuration with items as null
+ * @returns pmgpie_coordinator_config struct containing configuration with items as null
  *          if configuration was not provided
  * @throws config::ParseArgsError if any argument is invalid
  */
-config::pmgpie_worker_config parse_args(int argc, char *argv[])
+config::pmgpie_coordinator_config parse_args(int argc, char *argv[])
 {
     // Limit arguments
     if (argc > 64)
@@ -42,7 +42,7 @@ config::pmgpie_worker_config parse_args(int argc, char *argv[])
     // Load arguments into vector
     const std::vector<std::string> args(argv + 1, argv + argc);
 
-    config::pmgpie_worker_config conf;
+    config::pmgpie_coordinator_config conf;
 
     bool display_help = false;
 
@@ -50,24 +50,7 @@ config::pmgpie_worker_config parse_args(int argc, char *argv[])
     auto arg = args.begin();
     while (arg != args.end())
     {
-        // -n or --node-id arg
-        if (*arg == ARG_NODE_ID || *arg == ARG_NODE_ID_SHORT)
-        {
-            // Try to consume option
-            // Check if there is an argument to consume
-            arg++;
-            if (arg != args.end())
-            {
-                conf.worker_id = *arg;
-            }
-            else
-            {
-                print_message(MSG_OPT_VALUE_MISSING);
-                throw config::ParseArgsError();
-            }
-        }
-        // -t or --threads arg
-        else if (*arg == ARG_THREADS || *arg == ARG_THREADS_SHORT)
+        if (*arg == ARG_PORT || *arg == ARG_PORT_SHORT)
         {
             // Try to consume option
             // Check if there is an argument to consume
@@ -76,7 +59,7 @@ config::pmgpie_worker_config parse_args(int argc, char *argv[])
             {
                 try
                 {
-                    conf.threads = std::stoi(*arg);
+                    conf.port = std::stoi(*arg);
                 }
                 catch (std::exception _)
                 {
@@ -98,15 +81,8 @@ config::pmgpie_worker_config parse_args(int argc, char *argv[])
         }
         else
         {
-            // Check if we already have a coordinator host
-            if (conf.coordinator_host.has_value())
-            {
-                print_message(MSG_BAD_OPTION);
-                throw config::ParseArgsError();
-            }
-
-            // Consume coordinator host
-            conf.coordinator_host = *arg;
+            print_message(MSG_BAD_OPTION);
+            throw config::ParseArgsError();
         }
 
         // Next arg
@@ -116,22 +92,26 @@ config::pmgpie_worker_config parse_args(int argc, char *argv[])
     return conf;
 }
 
-config::pmgpie_worker_config config::configure(int argc, char *argv[])
+/**
+ * Sets default on a pmgpie_coordinator_config object
+ *
+ * @param config config object to modify
+ */
+void set_defaults(config::pmgpie_coordinator_config &config)
+{
+    if (!config.port.has_value())
+        config.port = DEFAULT_PORT;
+}
+
+config::pmgpie_coordinator_config config::configure(int argc, char *argv[])
 {
 
-    config::pmgpie_worker_config conf;
+    config::pmgpie_coordinator_config conf;
 
     try
     {
         // Parse args
         conf = parse_args(argc, argv);
-
-        // Check that required parameter is met
-        if (!conf.coordinator_host.has_value())
-        {
-            print_message(MSG_COORD_HOST_MISSING);
-            throw config::ParseArgsError();
-        }
     }
     catch (std::exception &e)
     {
@@ -141,6 +121,9 @@ config::pmgpie_worker_config config::configure(int argc, char *argv[])
         // Print usage message
         throw;
     }
+
+    // Set default values
+    set_defaults(conf);
 
     return conf;
 }

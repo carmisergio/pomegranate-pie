@@ -11,7 +11,9 @@
 
 #include <atomic>
 
+#include "pmgpie_coordinator_config.hpp"
 #include "ctrl_c.hpp"
+#include "pmgpie_cluster_server.hpp"
 
 /**
  * PMGPIeCoordinator Class
@@ -22,7 +24,7 @@ class PMGPIeCoordinator
 {
 
 public:
-    PMGPIeCoordinator();
+    PMGPIeCoordinator(config::pmgpie_coordinator_config conf);
     void run();
 
 private:
@@ -30,5 +32,9 @@ private:
     void setup_ctrlc_handler();
     void quit();
 
+    config::pmgpie_coordinator_config conf;
+
     std::atomic<bool> running;
+
+    pmgpie_cluster_server::PMGPIeClusterServer pmgpie_cluster_server;
 };

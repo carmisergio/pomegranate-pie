@@ -4,14 +4,14 @@
  * Handles argument parsing and default configuration
  *
  * @author Sergio Carmine 4CITI <me@sergiocarmi.net>
- * @date 29/11/2023
+ * @date 08/12/2023
  */
 
 #pragma once
 
 #include <string>
 
-#include "pmgpie_worker_config.hpp"
+#include "pmgpie_coordinator_config.hpp"
 
 namespace config
 {
@@ -22,7 +22,7 @@ namespace config
      * @param argv[] CLI arguments
      * @returns pmgpie_worker_config struct containing configuration
      */
-    pmgpie_worker_config configure(int argc, char *argv[]);
+    pmgpie_coordinator_config configure(int argc, char *argv[]);
 
     /**
      * Argument parsing error

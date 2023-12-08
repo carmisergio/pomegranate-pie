@@ -5,7 +5,7 @@ src/CMakeFiles/config.dir/config/config.cpp.o
  /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/src/config/config.cpp
  /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/src/config/arg_strings.hpp
  /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/src/config/config.hpp
- /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/src/config/pmgpie_worker_config.hpp
+ /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/src/config/pmgpie_coordinator_config.hpp
  /usr/include/alloca.h
  /usr/include/asm-generic/errno-base.h
  /usr/include/asm-generic/errno.h

@@ -161,6 +161,8 @@ CMakeFiles/proto-objects.dir/clean:
 # Target rules for target app/CMakeFiles/pmgpie-coordinator.dir
 
 # All Build rule for target.
+app/CMakeFiles/pmgpie-coordinator.dir/all: CMakeFiles/proto-objects.dir/all
+app/CMakeFiles/pmgpie-coordinator.dir/all: src/CMakeFiles/config.dir/all
 app/CMakeFiles/pmgpie-coordinator.dir/all: src/CMakeFiles/ctrl_c.dir/all
 	$(MAKE) $(MAKESILENT) -f app/CMakeFiles/pmgpie-coordinator.dir/build.make app/CMakeFiles/pmgpie-coordinator.dir/depend
 	$(MAKE) $(MAKESILENT) -f app/CMakeFiles/pmgpie-coordinator.dir/build.make app/CMakeFiles/pmgpie-coordinator.dir/build
@@ -169,7 +171,7 @@ app/CMakeFiles/pmgpie-coordinator.dir/all: src/CMakeFiles/ctrl_c.dir/all
 
 # Build rule for subdir invocation for target.
 app/CMakeFiles/pmgpie-coordinator.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/build/CMakeFiles 5
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/build/CMakeFiles 9
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 app/CMakeFiles/pmgpie-coordinator.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start /home/sergio/dev/pomegranate-pie/pmgpie-coordinator/build/CMakeFiles 0
 .PHONY : app/CMakeFiles/pmgpie-coordinator.dir/rule
