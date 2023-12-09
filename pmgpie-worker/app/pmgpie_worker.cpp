@@ -10,6 +10,7 @@
 #include <iostream>
 #include <chrono>
 #include <thread>
+#include <syncstream>
 
 #define UUID_SYSTEM_GENERATOR
 #include "uuid.hpp"
@@ -25,13 +26,6 @@ std::string generate_uuid()
 {
     uuids::uuid const id = uuids::uuid_system_generator{}();
     return uuids::to_string(id);
-}
-
-void result_callback(worker_pool::WorkUnitResult result)
-{
-    std::cout << "## Thread result:" << std::endl;
-    std::cout << "Start: " << result.get_start() << std::endl;
-    std::cout << "Digits: " << result.get_digits() << std::endl;
 }
 
 /**
@@ -67,52 +61,19 @@ void PMGPIeWorker::run()
     // Setup CTRL-C events
     this->setup_ctrlc_handler();
 
-    std::cout << "[MAIN] This worker ID: " << this->worker_id << std::endl;
+    std::osyncstream(std::cout) << "[MAIN] This worker ID: " << this->worker_id << std::endl;
 
     // Start all worker threads
-    std::cout << "[MAIN] Started!" << std::endl;
+    std::osyncstream(std::osyncstream(std::cout)) << "[MAIN] Started!" << std::endl;
 
     this->running = true;
 
-    // std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-    // this->worker_thread_pool.submit_work_unit(worker_pool::WorkUnit{0, 10000});
-
-    // int i = 0;
-    // for (int j = 0; j < 10; j++)
-    // {
-    //     this->worker_thread_pool.submit_work_unit(worker_pool::WorkUnit{i, 1000});
-    //     i += 1000;
-    // }
-
-    // std::this_thread::sleep_for(std::chrono::milliseconds(10000));
-    //     i = 0;
-    //     for (int j = 0; j < 10; j++)
-    //     {
-    //         this->worker_thread_pool.submit_work_unit(worker_pool::WorkUnit{i, 1000});
-    //         i += 1000;
-    //     }
-
-    //     std::this_thread::sleep_for(std::chrono::milliseconds(30000));
-
-    // for (int j = 0; j < this->worker_thread_pool.n_threads; j++)
-    // {
-    //     this->worker_thread_pool.submit_work_unit(worker_pool::WorkUnit{0, 3000});
-    //     // std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    // }
-
     while (this->running.load())
     {
-        // for (int j = 0; j < this->worker_thread_pool.n_threads; j++)
-        // {
-        //     this->worker_thread_pool.submit_work_unit(worker_pool::WorkUnit{0, 1000});
-        //     // std::this_thread::sleep_for(std::chrono::milliseconds(100));
-        // }
-
-        // std::this_thread::sleep_for(std::chrono::milliseconds(5000));
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
-    std::cout << "Exiting..." << std::endl;
+    std::osyncstream(std::cout) << "Exiting..." << std::endl;
 }
 
 /**
@@ -150,8 +111,6 @@ void PMGPIeWorker::setup_ctrlc_handler()
  */
 void PMGPIeWorker::quit()
 {
-    // std::cout << "CTRL-C Handler" << std::endl;
-
     // Stop main thread
     this->running = false;
 }

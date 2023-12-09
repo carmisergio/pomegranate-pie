@@ -8,6 +8,7 @@
 #pragma once
 
 #include <functional>
+#include <syncstream>
 
 #include "net_client_connection.hpp"
 #include "worker_thread_pool_common.hpp"
@@ -96,7 +97,7 @@ namespace net_client
             }
             else if (msg.has_goodbye())
             {
-                std::cout << "[CLUSTER] GoodBye message received!" << std::endl;
+                std::osyncstream(std::cout) << "[CLUSTER] GoodBye message received!" << std::endl;
                 this->quit();
             }
         }

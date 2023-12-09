@@ -6,6 +6,7 @@
 #include <thread>
 #include <atomic>
 #include <chrono>
+#include <syncstream>
 
 #include <iostream>
 
@@ -103,7 +104,7 @@ namespace net_client
 
                     if (ec)
                     {
-                        // std::cout << "Error on read: " << ec.message() << std::endl;
+                        // std::osyncstream(std::cout) << "Error on read: " << ec.message() << std::endl;
 
                         this->is_connected = false;
                     }
@@ -132,7 +133,7 @@ namespace net_client
 
                     if (ec)
                     {
-                        // std::cout << "Error on write: " << ec.message() << std::endl;
+                        // std::osyncstream(std::cout) << "Error on write: " << ec.message() << std::endl;
 
                         this->is_connected = false;
 
@@ -152,7 +153,7 @@ namespace net_client
         void do_connect()
         {
             if (!this->first_connection.load())
-                std::cout << "[CLUSTER] Disconnected! " << std::endl;
+                std::osyncstream(std::cout) << "[CLUSTER] Disconnected! " << std::endl;
             else
                 this->first_connection = false;
 
@@ -179,13 +180,13 @@ namespace net_client
                 }
                 first_try = false;
 
-                std::cout << "[CLUSTER] Trying to connect to  " << host << ":" << std::to_string(port) << std::endl;
+                std::osyncstream(std::cout) << "[CLUSTER] Trying to connect to  " << host << ":" << std::to_string(port) << std::endl;
 
                 // Resolve hostname
                 endpoints = resolver.resolve(query, ec);
                 if (ec)
                 {
-                    std::cout << "[CLUSTER] Address resolution failed:  " << ec.message() << std::endl;
+                    std::osyncstream(std::cout) << "[CLUSTER] Address resolution failed:  " << ec.message() << std::endl;
                     continue;
                 }
 
@@ -193,7 +194,7 @@ namespace net_client
                 asio::connect(this->socket, endpoints.begin(), ec);
                 if (ec)
                 {
-                    std::cout << "[CLUSTER] Connection failed:  " << ec.message() << std::endl;
+                    std::osyncstream(std::cout) << "[CLUSTER] Connection failed:  " << ec.message() << std::endl;
                     continue;
                 }
 
@@ -202,7 +203,7 @@ namespace net_client
 
                 this->is_connected = true;
 
-                std::cout << "[CLUSTER] Connected! " << std::endl;
+                std::osyncstream(std::cout) << "[CLUSTER] Connected! " << std::endl;
 
                 // Notify of connection
                 this->connected_callback();
@@ -235,7 +236,7 @@ namespace net_client
 
         void message_received(std::string msg)
         {
-            std::cout << "Message received: " << msg;
+            // std::osyncstream(std::cout) << "Message received: " << msg;
 
             this->message_received_callback(msg);
         }
