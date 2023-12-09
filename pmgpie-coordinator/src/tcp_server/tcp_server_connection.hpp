@@ -30,9 +30,21 @@ namespace tcp_server
             : socket(socket),
               add_to_con_removal_list(add_to_con_removal_list),
               message_received_callback(message_received_callback),
-              disconnected_callback(disconnected_callback),
-              reader_thr(&TCPServerConnection::reader, this),
-              writer_thr(&TCPServerConnection::writer, this){};
+              disconnected_callback(disconnected_callback)
+        {
+
+            // auto ptr = shared_from_this();
+            std::cout << "TCPServerConnection constructor" << std::endl;
+            // Set TCP keepalive
+            int val = 1;
+            setsockopt(this->socket->native_handle(), SOL_SOCKET, SO_KEEPALIVE, &val, sizeof(val));
+            val = 10;
+            setsockopt(this->socket->native_handle(), SOL_TCP, TCP_KEEPIDLE, &val, sizeof(val));
+            val = 5;
+            setsockopt(this->socket->native_handle(), SOL_TCP, TCP_KEEPCNT, &val, sizeof(val));
+            val = 1;
+            setsockopt(this->socket->native_handle(), SOL_TCP, TCP_KEEPINTVL, &val, sizeof(val));
+        };
 
         bool is_running()
         {
@@ -48,6 +60,16 @@ namespace tcp_server
         send_message(std::string msg)
         {
             this->outgoing.push(msg);
+        }
+
+        /**
+         * Starts the connection threads
+         */
+        void start()
+        {
+            // Start reader and writer thread
+            this->reader_thr = std::make_unique<std::thread>(&TCPServerConnection::reader, this);
+            this->writer_thr = std::make_unique<std::thread>(&TCPServerConnection::writer, this);
         }
 
         ~TCPServerConnection()
@@ -73,12 +95,12 @@ namespace tcp_server
             {
             }
 
-            if (this->reader_thr.joinable())
-                this->reader_thr.join();
+            if (this->reader_thr->joinable())
+                this->reader_thr->join();
 
             this->outgoing.push("");
-            if (this->writer_thr.joinable())
-                this->writer_thr.join();
+            if (this->writer_thr->joinable())
+                this->writer_thr->join();
         }
 
         std::string worker_id; // To be used externally
@@ -170,8 +192,8 @@ namespace tcp_server
         std::function<void(std::string, std::shared_ptr<TCPServerConnection>)> message_received_callback;
         std::function<void(std::shared_ptr<TCPServerConnection>)> disconnected_callback;
 
-        std::thread reader_thr;
-        std::thread writer_thr;
+        std::unique_ptr<std::thread> reader_thr;
+        std::unique_ptr<std::thread> writer_thr;
 
         TSQueue<std::string> outgoing;
     };

@@ -71,6 +71,8 @@ namespace pmgpie_cluster_server
         {
             std::string worker_id = connection->worker_id;
 
+            std::cout << "Worker disconnected: " << worker_id << std::endl;
+
             // Check that the client had the time to identify itself
             if (worker_id != "")
             {

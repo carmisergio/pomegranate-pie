@@ -93,15 +93,18 @@ namespace tcp_server
                     continue;
                 }
 
-                std::cout << "Received connection from " << socket->remote_endpoint().address() << std::endl;
-
                 // Create connection around this socket
-                this->active_connections.push_back(std::make_shared<TCPServerConnection>(
+                auto new_tcp_connection = std::make_shared<TCPServerConnection>(
                     socket,
                     [this](std::shared_ptr<TCPServerConnection> to_remove)
                     { this->con_removal_queue.push(to_remove); },
                     this->message_received_callback,
-                    this->disconnected_callback));
+                    this->disconnected_callback);
+
+                this->active_connections.push_back(new_tcp_connection);
+
+                // Start reading and writing from the connection
+                new_tcp_connection->start();
             }
         }
 
