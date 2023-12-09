@@ -20,7 +20,11 @@ target_link_libraries(tcp_server INTERFACE tsqueue asio)
 # PMGPieClusterServer library
 add_library(pmgpie_cluster_server INTERFACE)
 target_include_directories(pmgpie_cluster_server INTERFACE "pmgpie_cluster_server/")
-target_link_libraries(pmgpie_cluster_server INTERFACE tcp_server proto-objects)
+target_link_libraries(pmgpie_cluster_server INTERFACE tcp_server proto-objects work_unit_manager)
+
+# WorkUnitManager library
+add_library(work_unit_manager work_unit_manager/work_unit_manager.cpp)
+target_include_directories(work_unit_manager PUBLIC "work_unit_manager/")
 
 # TSQueue
 add_library(tsqueue INTERFACE)

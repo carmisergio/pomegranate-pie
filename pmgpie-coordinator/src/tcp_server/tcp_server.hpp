@@ -25,9 +25,11 @@ namespace tcp_server
          */
         TCPServer(
             int port,
-            std::function<void(std::string, std::shared_ptr<tcp_server::TCPServerConnection>)> message_received_callback)
+            std::function<void(std::string, std::shared_ptr<tcp_server::TCPServerConnection>)> message_received_callback,
+            std::function<void(std::shared_ptr<tcp_server::TCPServerConnection>)> disconnected_callback)
             : acceptor(this->io_ctx, asio::ip::tcp::endpoint(asio::ip::tcp::v4(), port)),
               message_received_callback(message_received_callback),
+              disconnected_callback(disconnected_callback),
               acceptor_thread(&TCPServer::acceptor_function, this),
               con_remover_thread(&TCPServer::con_remover, this){};
 
@@ -98,7 +100,8 @@ namespace tcp_server
                     socket,
                     [this](std::shared_ptr<TCPServerConnection> to_remove)
                     { this->con_removal_queue.push(to_remove); },
-                    this->message_received_callback));
+                    this->message_received_callback,
+                    this->disconnected_callback));
             }
         }
 
@@ -133,5 +136,6 @@ namespace tcp_server
 
         // Callbacks
         std::function<void(std::string, std::shared_ptr<TCPServerConnection>)> message_received_callback;
+        std::function<void(std::shared_ptr<TCPServerConnection>)> disconnected_callback;
     };
 }

@@ -14,6 +14,7 @@
 #include "pmgpie_coordinator_config.hpp"
 #include "ctrl_c.hpp"
 #include "pmgpie_cluster_server.hpp"
+#include "work_unit_manager.hpp"
 
 /**
  * PMGPIeCoordinator Class
@@ -36,5 +37,6 @@ private:
 
     std::atomic<bool> running;
 
+    std::shared_ptr<work_unit_manager::WorkUnitManager> work_unit_manager;
     pmgpie_cluster_server::PMGPIeClusterServer pmgpie_cluster_server;
 };

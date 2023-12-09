@@ -7,10 +7,12 @@
 
 #include <iostream>
 #include <syncstream>
+#include <memory>
 
 #include "tcp_server.hpp"
 
 #include "pmgpie_cluster.pb.h"
+#include "work_unit_manager.hpp"
 
 namespace pmgpie_cluster_server
 {
@@ -21,22 +23,124 @@ namespace pmgpie_cluster_server
         /**
          * Constructor
          */
-        PMGPIeClusterServer(int port)
-            : tcp_server(
+        PMGPIeClusterServer(int port, std::shared_ptr<work_unit_manager::WorkUnitManager> work_unit_manager)
+            : work_unit_manager(work_unit_manager),
+              tcp_server(
                   port,
-                  [](std::string msg, std::shared_ptr<tcp_server::TCPServerConnection> connection)
-                  {
-                      std::cout << "[CLUSTER] << Message received: " << msg << std::endl;
-                  }) {}
+                  [this](std::string msg, std::shared_ptr<tcp_server::TCPServerConnection> connection)
+                  { this->con_received_message(msg, connection); },
+                  [this](std::shared_ptr<tcp_server::TCPServerConnection> connection)
+                  { this->con_disconnected(connection); })
+        {
+        }
 
         /**
          * Destructor
          */
         ~PMGPIeClusterServer()
         {
+            // Send Goodbye message to all cluster clients
+            pmgpie_cluster::ServerMessage reply;
+            reply.set_allocated_goodbye(new pmgpie_cluster::GoodBye);
+            send_all(reply);
         }
 
     private:
+        void send_message(pmgpie_cluster::ServerMessage msg, std::shared_ptr<tcp_server::TCPServerConnection> connection)
+        {
+            connection->send_message(msg.SerializeAsString());
+        }
+
+        void send_all(pmgpie_cluster::ServerMessage msg)
+        {
+            this->tcp_server.send_all(msg.SerializeAsString());
+        }
+
+        // Parse message arriving as strings from the TCPServer
+        void con_received_message(std::string msg, std::shared_ptr<tcp_server::TCPServerConnection> connection)
+        {
+            pmgpie_cluster::ClientMessage message;
+
+            // Parse protobuf message and pass it on to the handler
+            if (message.ParseFromString(msg))
+                message_received(message, connection);
+        }
+
+        // Connection disconnected
+        void con_disconnected(std::shared_ptr<tcp_server::TCPServerConnection> connection)
+        {
+            std::string worker_id = connection->worker_id;
+
+            // Check that the client had the time to identify itself
+            if (worker_id != "")
+            {
+                this->work_unit_manager->mark_orphaned(connection->worker_id);
+            }
+        }
+
+        // ClientMessage received from any connection
+        void message_received(pmgpie_cluster::ClientMessage msg, std::shared_ptr<tcp_server::TCPServerConnection> connection)
+        {
+            // Check worker id field is present
+            if (msg.worker_id() == "")
+                return;
+
+            // Remember worker_id on connection
+            connection->worker_id = msg.worker_id();
+
+            // Handle each message type
+            if (msg.has_helo())
+                handle_helo_message(msg.worker_id());
+            else if (msg.has_goodbye())
+                handle_goodbye_message(msg.worker_id());
+            else if (msg.has_workunitresult())
+                handle_workunitresult_message(msg.worker_id(), msg.workunitresult());
+            else if (msg.has_requestworkunit())
+                handle_requestworkunit_message(msg.worker_id(), connection);
+        }
+
+        void handle_helo_message(std::string worker_id)
+        {
+            std::cout << "Helo message received from " << worker_id << std::endl;
+            this->work_unit_manager->mark_owned(worker_id);
+        }
+
+        void handle_goodbye_message(std::string worker_id)
+        {
+            std::cout << "Goodbye message received from " << worker_id << std::endl;
+
+            // Mark this worker's owned work units as disowned
+            this->work_unit_manager->mark_disowned(worker_id);
+        }
+
+        void handle_workunitresult_message(std::string worker_id, pmgpie_cluster::WorkUnitResult workunitresult)
+        {
+            std::cout << "WorkUnitResult message received from " << worker_id << std::endl;
+
+            std::cout << "\tdigits: " << workunitresult.digits().substr(0, 10) << "... size: " << workunitresult.digits().length() << std::endl;
+
+            // Submit result to work unit manager
+            this->work_unit_manager->submit_result(workunitresult.digits(), workunitresult.start());
+        }
+
+        void handle_requestworkunit_message(std::string worker_id, std::shared_ptr<tcp_server::TCPServerConnection> connection)
+        {
+            std::cout << "RequestWorkUnit message received from " << worker_id << std::endl;
+
+            // Get work unit from work unit manager
+            auto work_unit =
+                this->work_unit_manager->assign_work_unit(worker_id);
+
+            pmgpie_cluster::ServerMessage reply;
+            pmgpie_cluster::DispatchWorkUnit *dwu = new pmgpie_cluster::DispatchWorkUnit;
+            dwu->set_start(work_unit.start);
+            dwu->set_n_digits(work_unit.n_digits);
+            reply.set_allocated_dispatchworkunit(dwu);
+
+            send_message(reply, connection);
+        }
+
         tcp_server::TCPServer tcp_server;
+        std::shared_ptr<work_unit_manager::WorkUnitManager> work_unit_manager;
     };
 }

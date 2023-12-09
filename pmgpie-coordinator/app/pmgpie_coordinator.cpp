@@ -17,7 +17,8 @@
  * Constructor
  */
 PMGPIeCoordinator::PMGPIeCoordinator(config::pmgpie_coordinator_config conf)
-    : pmgpie_cluster_server(conf.port.value()),
+    : work_unit_manager(std::make_shared<work_unit_manager::WorkUnitManager>(100000)),
+      pmgpie_cluster_server(conf.port.value(), work_unit_manager),
       conf(conf)
 {
 }

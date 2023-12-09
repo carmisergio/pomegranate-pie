@@ -10,6 +10,7 @@
 // #include <iostream>
 #include <memory>
 #include <thread>
+#include <string>
 
 #include "asio.hpp"
 #include "tsqueue.hpp"
@@ -24,10 +25,12 @@ namespace tcp_server
         TCPServerConnection(
             std::shared_ptr<asio::ip::tcp::socket> socket,
             std::function<void(std::shared_ptr<TCPServerConnection>)> add_to_con_removal_list,
-            std::function<void(std::string, std::shared_ptr<TCPServerConnection> connection)> message_received_callback)
+            std::function<void(std::string, std::shared_ptr<TCPServerConnection> connection)> message_received_callback,
+            std::function<void(std::shared_ptr<TCPServerConnection> connection)> disconnected_callback)
             : socket(socket),
               add_to_con_removal_list(add_to_con_removal_list),
               message_received_callback(message_received_callback),
+              disconnected_callback(disconnected_callback),
               reader_thr(&TCPServerConnection::reader, this),
               writer_thr(&TCPServerConnection::writer, this){};
 
@@ -49,6 +52,7 @@ namespace tcp_server
 
         ~TCPServerConnection()
         {
+
             this->in_destructor = true;
 
             if (this->is_connected)
@@ -61,7 +65,13 @@ namespace tcp_server
                 }
             }
 
-            this->socket->shutdown(asio::ip::tcp::socket::shutdown_receive);
+            try
+            {
+                this->socket->shutdown(asio::ip::tcp::socket::shutdown_receive);
+            }
+            catch (std::system_error &e)
+            {
+            }
 
             if (this->reader_thr.joinable())
                 this->reader_thr.join();
@@ -70,6 +80,8 @@ namespace tcp_server
             if (this->writer_thr.joinable())
                 this->writer_thr.join();
         }
+
+        std::string worker_id; // To be used externally
 
     private:
         void reader()
@@ -85,6 +97,9 @@ namespace tcp_server
                     // std::cout << "Error on read: " << ec.message() << std::endl;
 
                     this->is_connected = false;
+
+                    // Call disconnected callbackdisconnected_calback
+                    this->disconnected_callback(shared_from_this());
 
                     if (!this->in_destructor.load())
                         add_to_con_removal_list(shared_from_this());
@@ -110,6 +125,9 @@ namespace tcp_server
                         // std::cout << "Error on write: " << ec.message() << std::endl;
 
                         this->is_connected = false;
+
+                        // Call disconnected callbackdisconnected_calback
+                        this->disconnected_callback(shared_from_this());
 
                         if (!this->in_destructor.load())
                             add_to_con_removal_list(shared_from_this());
@@ -150,6 +168,7 @@ namespace tcp_server
         // Callbacks
         std::function<void(std::shared_ptr<TCPServerConnection>)> add_to_con_removal_list;
         std::function<void(std::string, std::shared_ptr<TCPServerConnection>)> message_received_callback;
+        std::function<void(std::shared_ptr<TCPServerConnection>)> disconnected_callback;
 
         std::thread reader_thr;
         std::thread writer_thr;

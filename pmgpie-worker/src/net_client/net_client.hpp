@@ -33,6 +33,7 @@ namespace net_client
             this->worker_id = worker_id;
 
             this->submit_work_unit = submit_work_unit;
+            this->quit = quit;
 
             // Send bootstrap RequestWorkUnit messages,
             // one for each worker thread
