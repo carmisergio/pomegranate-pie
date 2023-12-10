@@ -73,6 +73,27 @@ config::pmgpie_coordinator_config parse_args(int argc, char *argv[])
                 throw config::ParseArgsError();
             }
         }
+        // -d or --directory
+        else if (*arg == ARG_OUT_DIR || *arg == ARG_OUT_DIR_SHORT)
+        {
+            // Try to consume option
+            // Check if there is an argument to consume
+            arg++;
+            if (arg != args.end())
+            {
+                conf.out_dir = *arg;
+            }
+            else
+            {
+                print_message(MSG_OPT_VALUE_MISSING);
+                throw config::ParseArgsError();
+            }
+        }
+        // -o or --overwrite
+        else if (*arg == ARG_OVERWRITE || *arg == ARG_OVERWRITE_SHORT)
+        {
+            conf.overwrite = true;
+        }
         // -h or --heallp arg
         else if (*arg == ARG_HELP || *arg == ARG_HELP_SHORT)
         {
@@ -101,6 +122,10 @@ void set_defaults(config::pmgpie_coordinator_config &config)
 {
     if (!config.port.has_value())
         config.port = DEFAULT_PORT;
+    if (!config.out_dir.has_value())
+        config.out_dir = DEFAULT_OUT_DIR;
+    if (!config.overwrite.has_value())
+        config.overwrite = false;
 }
 
 config::pmgpie_coordinator_config config::configure(int argc, char *argv[])

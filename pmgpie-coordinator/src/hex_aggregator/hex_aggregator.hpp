@@ -8,6 +8,8 @@
  * @date 26/11/2023
  */
 
+#pragma once
+
 #include <gmpxx.h>
 #include <string>
 

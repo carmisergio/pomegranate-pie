@@ -5,6 +5,8 @@
  * @date 08/12/2023
  */
 
+#pragma once
+
 #include <functional>
 #include <thread>
 #include <memory>

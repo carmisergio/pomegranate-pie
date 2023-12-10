@@ -18,5 +18,7 @@ namespace config
     struct pmgpie_coordinator_config
     {
         std::optional<unsigned short> port;
+        std::optional<std::string> out_dir;
+        std::optional<bool> overwrite;
     };
 }

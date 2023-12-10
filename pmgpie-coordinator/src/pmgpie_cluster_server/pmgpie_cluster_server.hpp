@@ -5,6 +5,8 @@
  * @date 08/12/2023
  */
 
+#pragma once
+
 #include <iostream>
 #include <syncstream>
 #include <memory>
@@ -71,7 +73,7 @@ namespace pmgpie_cluster_server
         {
             std::string worker_id = connection->worker_id;
 
-            std::cout << "Worker disconnected: " << worker_id << std::endl;
+            std::osyncstream(std::cout) << "[CLUSTER] Lost conneciton to worker: " << worker_id << std::endl;
 
             // Check that the client had the time to identify itself
             if (worker_id != "")
@@ -103,13 +105,13 @@ namespace pmgpie_cluster_server
 
         void handle_helo_message(std::string worker_id)
         {
-            std::cout << "Helo message received from " << worker_id << std::endl;
+            std::osyncstream(std::cout) << "[CLUSTER] New worker joined: " << worker_id << std::endl;
             this->work_unit_manager->mark_owned(worker_id);
         }
 
         void handle_goodbye_message(std::string worker_id)
         {
-            std::cout << "Goodbye message received from " << worker_id << std::endl;
+            std::osyncstream(std::cout) << "[CLUSTER] Goodbye from worker: " << worker_id << std::endl;
 
             // Mark this worker's owned work units as disowned
             this->work_unit_manager->mark_disowned(worker_id);
@@ -117,9 +119,9 @@ namespace pmgpie_cluster_server
 
         void handle_workunitresult_message(std::string worker_id, pmgpie_cluster::WorkUnitResult workunitresult)
         {
-            std::cout << "WorkUnitResult message received from " << worker_id << std::endl;
+            std::osyncstream(std::cout) << "WorkUnitResult message received from " << worker_id << std::endl;
 
-            std::cout << "\tdigits: " << workunitresult.digits().substr(0, 10) << "... size: " << workunitresult.digits().length() << std::endl;
+            std::osyncstream(std::cout) << "\tdigits: " << workunitresult.digits().substr(0, 10) << "... size: " << workunitresult.digits().length() << std::endl;
 
             // Submit result to work unit manager
             this->work_unit_manager->submit_result(workunitresult.digits(), workunitresult.start());
@@ -127,8 +129,6 @@ namespace pmgpie_cluster_server
 
         void handle_requestworkunit_message(std::string worker_id, std::shared_ptr<tcp_server::TCPServerConnection> connection)
         {
-            std::cout << "RequestWorkUnit message received from " << worker_id << std::endl;
-
             // Get work unit from work unit manager
             auto work_unit =
                 this->work_unit_manager->assign_work_unit(worker_id);

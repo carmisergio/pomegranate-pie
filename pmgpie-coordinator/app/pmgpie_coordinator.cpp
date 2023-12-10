@@ -10,6 +10,7 @@
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <filesystem>
 
 #include "pmgpie_coordinator.hpp"
 
@@ -17,10 +18,27 @@
  * Constructor
  */
 PMGPIeCoordinator::PMGPIeCoordinator(config::pmgpie_coordinator_config conf)
-    : work_unit_manager(std::make_shared<work_unit_manager::WorkUnitManager>(100000)),
-      pmgpie_cluster_server(conf.port.value(), work_unit_manager),
-      conf(conf)
+    : conf(conf)
 {
+    std::string initial_digits;
+
+    // Load previously computed digits
+    if (!conf.overwrite.value())
+    {
+        auto read_result = file::read_hex_digits(conf.out_dir.value());
+        if (read_result.has_value())
+        {
+            std::cout << "[SETUP] Loaded previously computed digits: " << read_result.value().size() << std::endl;
+
+            initial_digits = read_result.value();
+        }
+    }
+
+    // Construct all objects
+    this->file_writer = std::make_shared<file::FileWriter>(std::filesystem::path(conf.out_dir.value()), conf.overwrite.value());
+    this->work_unit_combiner = std::make_shared<work_unit_combiner::WorkUnitCombiner>(file_writer, initial_digits);
+    this->work_unit_manager = std::make_shared<work_unit_manager::WorkUnitManager>(initial_digits.size(), this->work_unit_combiner);
+    this->pmgpie_cluster_server = std::make_shared<pmgpie_cluster_server::PMGPIeClusterServer>(conf.port.value(), work_unit_manager);
 }
 
 /**

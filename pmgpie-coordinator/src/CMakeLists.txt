@@ -7,6 +7,7 @@ target_include_directories(config PUBLIC "config/")
 # HEXAggregator library
 add_library(hex_aggregator hex_aggregator/hex_aggregator.cpp)
 target_include_directories(hex_aggregator PUBLIC "hex_aggregator/")
+target_link_libraries(hex_aggregator gmp gmpxx)
 
 # Ctrl-C library
 add_library(ctrl_c ctrl_c/ctrl_c.cpp)
@@ -25,6 +26,16 @@ target_link_libraries(pmgpie_cluster_server INTERFACE tcp_server proto-objects w
 # WorkUnitManager library
 add_library(work_unit_manager work_unit_manager/work_unit_manager.cpp)
 target_include_directories(work_unit_manager PUBLIC "work_unit_manager/")
+target_link_libraries(work_unit_manager work_unit_combiner hex_aggregator)
+
+# WorkUnitCombiner library
+add_library(work_unit_combiner work_unit_combiner/work_unit_combiner.cpp)
+target_include_directories(work_unit_combiner PUBLIC "work_unit_combiner/")
+target_link_libraries(work_unit_combiner file)
+
+# FileWriter library
+add_library(file file/file_writer.cpp)
+target_include_directories(file PUBLIC "file/")
 
 # TSQueue
 add_library(tsqueue INTERFACE)

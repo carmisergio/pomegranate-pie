@@ -33,8 +33,6 @@ namespace tcp_server
               disconnected_callback(disconnected_callback)
         {
 
-            // auto ptr = shared_from_this();
-            std::cout << "TCPServerConnection constructor" << std::endl;
             // Set TCP keepalive
             int val = 1;
             setsockopt(this->socket->native_handle(), SOL_SOCKET, SO_KEEPALIVE, &val, sizeof(val));
@@ -120,11 +118,13 @@ namespace tcp_server
 
                     this->is_connected = false;
 
-                    // Call disconnected callbackdisconnected_calback
-                    this->disconnected_callback(shared_from_this());
-
                     if (!this->in_destructor.load())
+                    {
+                        // Call disconnected callbackdisconnected_calback
+                        this->disconnected_callback(shared_from_this());
+
                         add_to_con_removal_list(shared_from_this());
+                    }
                 }
             }
         }
@@ -148,11 +148,12 @@ namespace tcp_server
 
                         this->is_connected = false;
 
-                        // Call disconnected callbackdisconnected_calback
-                        this->disconnected_callback(shared_from_this());
-
                         if (!this->in_destructor.load())
+                        {
+                            // Call disconnected callbackdisconnected_calback
+                            this->disconnected_callback(shared_from_this());
                             add_to_con_removal_list(shared_from_this());
+                        }
                     }
                 }
             }

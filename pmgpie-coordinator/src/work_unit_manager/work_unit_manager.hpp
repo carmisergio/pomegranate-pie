@@ -13,7 +13,9 @@
 #include <optional>
 #include <chrono>
 
-double log_fast_ankerl(double a);
+#include "work_unit_combiner.hpp"
+
+#define MAX_WORK_UNIT_SIZE 5000
 
 namespace work_unit_manager
 {
@@ -50,8 +52,8 @@ namespace work_unit_manager
          *
          * @param start digit on which to start
          */
-        WorkUnitManager(long long start)
-            : next_digit{start}
+        WorkUnitManager(long long start, std::shared_ptr<work_unit_combiner::WorkUnitCombiner> work_unit_combiner)
+            : next_digit{start}, work_unit_combiner(work_unit_combiner)
         {
         }
 
@@ -111,7 +113,10 @@ namespace work_unit_manager
          */
         void submit_result(std::string digits, long long start)
         {
-            std::cout << "[WORK UNIT MANAGER] Removing work unit: (start = " << start << ")" << std::endl;
+            // std::cout << "[WORK UNIT MANAGER] Removing work unit: (start = " << start << ")" << std::endl;
+
+            // Submit result to combiner
+            this->work_unit_combiner->submit_work_unit_result(digits, start);
 
             // Remove work unti from active list
             remove_work_unit(start);
@@ -199,10 +204,11 @@ namespace work_unit_manager
             WorkUnit res;
 
             // Calculate number of digits to give
-            res.n_digits = 5000 / (next_digit == 0 ? 1 : next_digit * log10((double)next_digit) / (5000 * 1.5));
+            res.n_digits = MAX_WORK_UNIT_SIZE /
+                           (next_digit == 0 ? 1 : next_digit * log10((double)next_digit) / (MAX_WORK_UNIT_SIZE * 1.5));
+
             if (res.n_digits < 1)
                 res.n_digits = 1;
-            std::cout << res.n_digits << std::endl;
 
             res.start = next_digit;
 
@@ -228,5 +234,8 @@ namespace work_unit_manager
         // Main list of all work units we're working on
         std::list<WorkUnitControlBlock> active_work_units;
         std::mutex active_work_units_mutex;
+
+        // Pointer to the work unit combiner object
+        std::shared_ptr<work_unit_combiner::WorkUnitCombiner> work_unit_combiner;
     };
 }
