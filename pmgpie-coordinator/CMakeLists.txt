@@ -14,7 +14,7 @@ add_subdirectory(lib)
 
 # Protobuf generation
 find_package(protobuf CONFIG REQUIRED)
-add_library(proto-objects OBJECT "${CMAKE_CURRENT_LIST_DIR}/proto/pmgpie_cluster.proto")
+add_library(proto-objects OBJECT "${CMAKE_CURRENT_LIST_DIR}/proto/pmgpie_cluster.proto" "${CMAKE_CURRENT_LIST_DIR}/proto/frontend.proto" )
 target_link_libraries(proto-objects PUBLIC protobuf::libprotobuf)
 # set(PROTO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}/generated")
 set(PROTO_BINARY_DIR "${CMAKE_CURRENT_BINARY_DIR}")

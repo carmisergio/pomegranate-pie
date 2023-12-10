@@ -11,6 +11,7 @@
 #include <thread>
 #include <chrono>
 #include <filesystem>
+#include <memory>
 
 #include "pmgpie_coordinator.hpp"
 
@@ -34,11 +35,14 @@ PMGPIeCoordinator::PMGPIeCoordinator(config::pmgpie_coordinator_config conf)
         }
     }
 
+    this->stats = std::make_shared<PMGPIeClusterStats>();
+
     // Construct all objects
     this->file_writer = std::make_shared<file::FileWriter>(std::filesystem::path(conf.out_dir.value()), conf.overwrite.value());
-    this->work_unit_combiner = std::make_shared<work_unit_combiner::WorkUnitCombiner>(file_writer, initial_digits);
+    this->work_unit_combiner = std::make_shared<work_unit_combiner::WorkUnitCombiner>(file_writer, initial_digits, stats);
     this->work_unit_manager = std::make_shared<work_unit_manager::WorkUnitManager>(initial_digits.size(), this->work_unit_combiner);
-    this->pmgpie_cluster_server = std::make_shared<pmgpie_cluster_server::PMGPIeClusterServer>(conf.port.value(), work_unit_manager);
+    this->pmgpie_cluster_server = std::make_shared<pmgpie_cluster_server::PMGPIeClusterServer>(conf.port.value(), work_unit_manager, stats);
+    this->frontend_server = std::make_shared<frontend::FrontendServer>(stats);
 }
 
 /**

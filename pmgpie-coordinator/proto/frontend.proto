@@ -1,0 +1,22 @@
+syntax="proto3";
+
+package frontend;
+
+message ClientMessage {
+  oneof body {
+    RequestStats requeststats = 1;
+  };
+}
+
+message ServerMessage {
+  oneof body {
+    PublishStats publishstats = 1;
+  }
+}
+
+message RequestStats {};
+
+message PublishStats {
+    uint64 n_hex_digits = 1;
+    // uint32 n_workers = 2;
+};

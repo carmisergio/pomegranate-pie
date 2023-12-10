@@ -15,6 +15,7 @@
 
 #include "pmgpie_cluster.pb.h"
 #include "work_unit_manager.hpp"
+#include "stats.hpp"
 
 namespace pmgpie_cluster_server
 {
@@ -25,8 +26,12 @@ namespace pmgpie_cluster_server
         /**
          * Constructor
          */
-        PMGPIeClusterServer(int port, std::shared_ptr<work_unit_manager::WorkUnitManager> work_unit_manager)
+        PMGPIeClusterServer(
+            int port,
+            std::shared_ptr<work_unit_manager::WorkUnitManager> work_unit_manager,
+            std::shared_ptr<PMGPIeClusterStats> stats)
             : work_unit_manager(work_unit_manager),
+              stats(stats),
               tcp_server(
                   port,
                   [this](std::string msg, std::shared_ptr<tcp_server::TCPServerConnection> connection)
@@ -80,6 +85,10 @@ namespace pmgpie_cluster_server
             if (worker_id != "")
             {
                 this->work_unit_manager->mark_orphaned(connection->worker_id);
+
+                // Count client leaving
+                this->n_clients--;
+                stats->worker_nodes = n_clients;
             }
         }
 
@@ -110,6 +119,10 @@ namespace pmgpie_cluster_server
             //                             << " Joined!" << std::endl;
 
             this->work_unit_manager->mark_owned(worker_id);
+
+            // Count client joining
+            this->n_clients++;
+            stats->worker_nodes = n_clients;
         }
 
         void handle_goodbye_message(std::string worker_id)
@@ -156,5 +169,8 @@ namespace pmgpie_cluster_server
 
         tcp_server::TCPServer tcp_server;
         std::shared_ptr<work_unit_manager::WorkUnitManager> work_unit_manager;
+
+        std::atomic<int> n_clients{0};
+        std::shared_ptr<PMGPIeClusterStats> stats;
     };
 }

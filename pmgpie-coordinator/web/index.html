@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="shortcut icon" href="img/favicon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="styles.css" />
+    <script src="main.js"></script>
+    <title>PMGPIe Cluster Dashboard</title>
+  </head>
+  <body>
+    <!-- Header -->
+    <header>
+      <div class="logo">
+        <!-- <div class="logo_img"> -->
+        <img class="logo_img" src="img/pi_logo.svg" alt="" />
+        <!-- </div> -->
+        <h2 class="logo_text">PMGPIe<br />Cluster</h2>
+      </div>
+    </header>
+
+    <!-- Main content -->
+    <main>
+      <section id="disconnected" class="">
+        <h2 class="disconnected_message">Connecting...</h2>
+      </section>
+      <section id="connected" class="displaynone">
+        <div class="row_container">
+          <div class="row mainrow">
+            <h1 id="hex_digits" class="bigbignumber">100.123</h1>
+            <h3 class="subtitle">HEX digits</h3>
+          </div>
+          <div class="row secondaryrow">
+            <div class="column_container">
+              <div class="column">
+                <h1 id="worker_nodes" class="bignumber pgred">14</h1>
+                <h3 class="subtitle">Active Worker Nodes</h3>
+              </div>
+              <div class="column">
+                <h1 id="" class="bignumber green">244 K</h1>
+                <h3 class="subtitle">digit/s</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

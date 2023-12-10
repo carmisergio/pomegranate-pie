@@ -21,7 +21,7 @@ target_link_libraries(tcp_server INTERFACE tsqueue asio)
 # PMGPieClusterServer library
 add_library(pmgpie_cluster_server INTERFACE)
 target_include_directories(pmgpie_cluster_server INTERFACE "pmgpie_cluster_server/")
-target_link_libraries(pmgpie_cluster_server INTERFACE tcp_server proto-objects work_unit_manager)
+target_link_libraries(pmgpie_cluster_server INTERFACE tcp_server proto-objects work_unit_manager stats)
 
 # WorkUnitManager library
 add_library(work_unit_manager work_unit_manager/work_unit_manager.cpp)
@@ -31,11 +31,21 @@ target_link_libraries(work_unit_manager work_unit_combiner hex_aggregator)
 # WorkUnitCombiner library
 add_library(work_unit_combiner work_unit_combiner/work_unit_combiner.cpp)
 target_include_directories(work_unit_combiner PUBLIC "work_unit_combiner/")
-target_link_libraries(work_unit_combiner file)
+target_link_libraries(work_unit_combiner file stats)
 
 # FileWriter library
 add_library(file file/file_writer.cpp)
 target_include_directories(file PUBLIC "file/")
+
+# Frontend library
+add_library(frontend frontend/frontend.cpp)
+target_include_directories(frontend PUBLIC "frontend/")
+target_link_libraries(frontend seasocks stats json)
+
+# Stats library
+add_library(stats INTERFACE)
+target_include_directories(stats INTERFACE "stats/")
+target_link_libraries(stats INTERFACE)
 
 # TSQueue
 add_library(tsqueue INTERFACE)

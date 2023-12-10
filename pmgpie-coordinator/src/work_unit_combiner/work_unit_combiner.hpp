@@ -12,6 +12,7 @@
 #include <vector>
 #include <chrono>
 #include <syncstream>
+#include <stats.hpp>
 
 #include "tsqueue.hpp"
 #include "file_writer.hpp"
@@ -28,10 +29,14 @@ namespace work_unit_combiner
     class WorkUnitCombiner
     {
     public:
-        WorkUnitCombiner(std::shared_ptr<file::FileWriter> file_writer, std::string initial_digits)
+        WorkUnitCombiner(
+            std::shared_ptr<file::FileWriter> file_writer,
+            std::string initial_digits,
+            std::shared_ptr<PMGPIeClusterStats> stats)
             : file_writer(file_writer),
               processor_thr(&WorkUnitCombiner::processor, this),
-              next_digit{0}
+              next_digit{0},
+              stats(stats)
 
         {
             // Prime with initial digits
@@ -123,6 +128,7 @@ namespace work_unit_combiner
             // std::cout
             //     << "[PI] Added " << new_digits.size() << " digits" << std::endl;
             std::osyncstream(std::cout) << "[PI] HEX digits: " << this->next_digit << std::endl;
+            stats->hex_digits_generated = this->next_digit;
         }
 
         // Search the processing area for the next work unit
@@ -146,5 +152,7 @@ namespace work_unit_combiner
         TSQueue<InternalWorkUnitResult> to_process;
 
         std::shared_ptr<file::FileWriter> file_writer;
+
+        std::shared_ptr<PMGPIeClusterStats> stats;
     };
 }
