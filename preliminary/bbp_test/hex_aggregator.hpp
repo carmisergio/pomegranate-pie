@@ -30,11 +30,11 @@ short hex_char_to_int(char in)
 
     // Letters a-f
     if (in >= 'a' && in <= 'f')
-        return in - 'a';
+        return in - 'a' + 10;
 
     // Letters A-F
     if (in >= 'A' && in <= 'F')
-        return in - 'A';
+        return in - 'A' + 10;
 
     // Input character was invalid
     throw std::out_of_range("Invalid hex character: " + std::to_string(in));
@@ -103,6 +103,9 @@ void HexAggregator::insert_digits(std::string digits)
     // Loop over digits
     for (char digit : digits)
     {
+        short digitval = hex_char_to_int(digit);
+        std::cout << "Digit: " << digit << ", val:  " << digitval << std::endl;
+        ;
         insert_digit(hex_char_to_int(digit));
     }
 }
