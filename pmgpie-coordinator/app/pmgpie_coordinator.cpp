@@ -47,8 +47,6 @@ PMGPIeCoordinator::PMGPIeCoordinator(config::pmgpie_coordinator_config conf)
 void PMGPIeCoordinator::run()
 {
 
-    std::cout << "PMGPIe Coordinator started!" << std::endl;
-
     // Run
     this->running = true;
 

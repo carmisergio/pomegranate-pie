@@ -11,9 +11,9 @@
 #include <string>
 #include <vector>
 #include <chrono>
+#include <syncstream>
 
 #include "tsqueue.hpp"
-#include "hex_aggregator.hpp"
 #include "file_writer.hpp"
 
 namespace work_unit_combiner
@@ -57,8 +57,6 @@ namespace work_unit_combiner
 
             if (this->processor_thr.joinable())
                 this->processor_thr.join();
-
-            // std::cout << this->hex_aggregator.get_dec() << std::endl;
         }
 
     private:
@@ -117,23 +115,14 @@ namespace work_unit_combiner
         void new_sequential_digits(std::string &new_digits, bool write = true)
         {
 
-            // Convert to decimal
-            this->hex_aggregator.insert_digits(new_digits);
-
-            std::string tmp = hex_aggregator.get_dec();
-
             if (write)
             {
-                file_writer->write_dec(tmp.substr(this->n_current_dec_digits, tmp.size()));
                 file_writer->write_hex(new_digits);
             }
 
-            this->n_current_dec_digits = tmp.size();
-
-            std::cout
-                << "[PI] Added " << new_digits.size() << " digits" << std::endl;
-            std::cout << "[PI] HEX digits: " << this->next_digit << std::endl;
-            std::cout << "[PI] DEC digits: " << this->hex_aggregator.n_digits_dec() << std::endl;
+            // std::cout
+            //     << "[PI] Added " << new_digits.size() << " digits" << std::endl;
+            std::osyncstream(std::cout) << "[PI] HEX digits: " << this->next_digit << std::endl;
         }
 
         // Search the processing area for the next work unit
@@ -153,9 +142,7 @@ namespace work_unit_combiner
         std::thread processor_thr;
 
         std::vector<InternalWorkUnitResult> processing_area;
-        HexAggregator hex_aggregator;
-        int n_current_dec_digits{0}; // Number of computed deicmal digits
-                                     //
+
         TSQueue<InternalWorkUnitResult> to_process;
 
         std::shared_ptr<file::FileWriter> file_writer;

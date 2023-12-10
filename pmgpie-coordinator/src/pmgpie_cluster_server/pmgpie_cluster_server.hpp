@@ -34,6 +34,7 @@ namespace pmgpie_cluster_server
                   [this](std::shared_ptr<tcp_server::TCPServerConnection> connection)
                   { this->con_disconnected(connection); })
         {
+            std::osyncstream(std::cout) << "[CLUSTER] Listening on port  " << port << std::endl;
         }
 
         /**
@@ -105,13 +106,16 @@ namespace pmgpie_cluster_server
 
         void handle_helo_message(std::string worker_id)
         {
-            std::osyncstream(std::cout) << "[CLUSTER] New worker joined: " << worker_id << std::endl;
+            // std::osyncstream(std::cout) << "[CLUSTER][" << worker_id << "]"
+            //                             << " Joined!" << std::endl;
+
             this->work_unit_manager->mark_owned(worker_id);
         }
 
         void handle_goodbye_message(std::string worker_id)
         {
-            std::osyncstream(std::cout) << "[CLUSTER] Goodbye from worker: " << worker_id << std::endl;
+            std::osyncstream(std::cout) << "[CLUSTER][" << worker_id << "]"
+                                        << " Goodbye!" << std::endl;
 
             // Mark this worker's owned work units as disowned
             this->work_unit_manager->mark_disowned(worker_id);
@@ -119,9 +123,13 @@ namespace pmgpie_cluster_server
 
         void handle_workunitresult_message(std::string worker_id, pmgpie_cluster::WorkUnitResult workunitresult)
         {
-            std::osyncstream(std::cout) << "WorkUnitResult message received from " << worker_id << std::endl;
+            // std::osyncstream(std::cout) << "WorkUnitResult message received from " << worker_id << std::endl;
 
-            std::osyncstream(std::cout) << "\tdigits: " << workunitresult.digits().substr(0, 10) << "... size: " << workunitresult.digits().length() << std::endl;
+            // std::osyncstream(std::cout) << "\tdigits: " << workunitresult.digits().substr(0, 10) << "... size: " << workunitresult.digits().length() << std::endl;
+
+            std::osyncstream(std::cout) << "[CLUSTER][" << worker_id << "]"
+                                        << " Work unit result (start = " << workunitresult.start() << ", n = "
+                                        << workunitresult.digits().size() << ")" << std::endl;
 
             // Submit result to work unit manager
             this->work_unit_manager->submit_result(workunitresult.digits(), workunitresult.start());
@@ -140,6 +148,10 @@ namespace pmgpie_cluster_server
             reply.set_allocated_dispatchworkunit(dwu);
 
             send_message(reply, connection);
+
+            std::osyncstream(std::cout) << "[CLUSTER][" << worker_id << "]"
+                                        << " Dispatched work unit: (start = " << work_unit.start << ", n = "
+                                        << work_unit.n_digits << ")" << std::endl;
         }
 
         tcp_server::TCPServer tcp_server;
