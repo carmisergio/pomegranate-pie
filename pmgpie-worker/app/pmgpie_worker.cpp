@@ -38,7 +38,7 @@ PMGPIeWorker::PMGPIeWorker(config::pmgpie_worker_config conf)
                          { this->cluster_client.publish_work_unit_result(result); }),
       cluster_client(
           conf.coordinator_host.value(),
-          3141,
+          conf.port.value(),
           this->worker_id,
           this->worker_thread_pool.n_threads,
           [this](worker_pool::WorkUnit work_unit)

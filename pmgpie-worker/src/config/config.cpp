@@ -50,24 +50,8 @@ config::pmgpie_worker_config parse_args(int argc, char *argv[])
     auto arg = args.begin();
     while (arg != args.end())
     {
-        // -n or --node-id arg
-        if (*arg == ARG_NODE_ID || *arg == ARG_NODE_ID_SHORT)
-        {
-            // Try to consume option
-            // Check if there is an argument to consume
-            arg++;
-            if (arg != args.end())
-            {
-                conf.worker_id = *arg;
-            }
-            else
-            {
-                print_message(MSG_OPT_VALUE_MISSING);
-                throw config::ParseArgsError();
-            }
-        }
         // -t or --threads arg
-        else if (*arg == ARG_THREADS || *arg == ARG_THREADS_SHORT)
+        if (*arg == ARG_THREADS || *arg == ARG_THREADS_SHORT)
         {
             // Try to consume option
             // Check if there is an argument to consume
@@ -77,6 +61,30 @@ config::pmgpie_worker_config parse_args(int argc, char *argv[])
                 try
                 {
                     conf.threads = std::stoi(*arg);
+                }
+                catch (std::exception _)
+                {
+                    print_message(MSG_OPT_VALUE_INVALID);
+                    throw config::ParseArgsError();
+                }
+            }
+            else
+            {
+                print_message(MSG_OPT_VALUE_MISSING);
+                throw config::ParseArgsError();
+            }
+        }
+        // -p or --port arg
+        else if (*arg == ARG_PORT || *arg == ARG_PORT_SHORT)
+        {
+            // Try to consume option
+            // Check if there is an argument to consume
+            arg++;
+            if (arg != args.end())
+            {
+                try
+                {
+                    conf.port = std::stoi(*arg);
                 }
                 catch (std::exception _)
                 {
@@ -116,6 +124,17 @@ config::pmgpie_worker_config parse_args(int argc, char *argv[])
     return conf;
 }
 
+/**
+ * Sets default on a pmgpie_coordinator_config object
+ *
+ * @param config config object to modify
+ */
+void set_defaults(config::pmgpie_worker_config &config)
+{
+    if (!config.port.has_value())
+        config.port = DEFAULT_PORT;
+}
+
 config::pmgpie_worker_config config::configure(int argc, char *argv[])
 {
 
@@ -141,6 +160,9 @@ config::pmgpie_worker_config config::configure(int argc, char *argv[])
         // Print usage message
         throw;
     }
+
+    // Set defaults
+    set_defaults(conf);
 
     return conf;
 }
