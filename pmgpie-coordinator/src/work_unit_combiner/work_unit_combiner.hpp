@@ -36,7 +36,8 @@ namespace work_unit_combiner
             : file_writer(file_writer),
               processor_thr(&WorkUnitCombiner::processor, this),
               next_digit{0},
-              stats(stats)
+              stats(stats),
+              throughput_calculator_thr(&WorkUnitCombiner::throughput_calculator, this)
 
         {
             // Prime with initial digits
@@ -57,11 +58,17 @@ namespace work_unit_combiner
 
         ~WorkUnitCombiner()
         {
+
+            this->run = false;
+
             // Send special internal work unit to make the processor thread exit
             this->to_process.push(InternalWorkUnitResult{"", 0, true});
 
             if (this->processor_thr.joinable())
                 this->processor_thr.join();
+
+            if (this->throughput_calculator_thr.joinable())
+                this->throughput_calculator_thr.join();
         }
 
     private:
@@ -125,10 +132,7 @@ namespace work_unit_combiner
                 file_writer->write_hex(new_digits);
             }
 
-            // std::cout
-            //     << "[PI] Added " << new_digits.size() << " digits" << std::endl;
-            std::osyncstream(std::cout) << "[PI] HEX digits: " << this->next_digit << std::endl;
-            stats->hex_digits_generated = this->next_digit;
+            update_stats(new_digits, this->next_digit);
         }
 
         // Search the processing area for the next work unit
@@ -143,6 +147,57 @@ namespace work_unit_combiner
             return this->processing_area.end();
         }
 
+        void update_stats(std::string new_digits, long long n_digits)
+        {
+            std::osyncstream(std::cout) << "[PI] HEX digits: " << this->next_digit << std::endl;
+
+            stats->hex_digits_generated = n_digits;
+
+            // Update last 100 digits
+            std::string tmp = stats->last_100_digits;
+            tmp.append(new_digits);
+            stats->last_100_digits = tmp.substr(std::max((size_t)0, tmp.size() - 100), tmp.size());
+
+            // Compute digits/s
+            if (this->last_wu_time.has_value())
+            {
+
+                uint64_t ms = std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - last_wu_time.value()).count();
+                tc_interval = this->wu_time_avg(ms) * 5;
+            }
+
+            this->last_wu_time = std::chrono::high_resolution_clock::now();
+        }
+
+        void throughput_calculator()
+        {
+            while (this->run.load())
+            {
+                if (this->last_throughput_calculator.has_value())
+                {
+                    // Find out how many digits were generated
+                    uint64_t time = std::chrono::duration_cast<std::chrono::milliseconds>(
+                                        std::chrono::high_resolution_clock::now() - last_throughput_calculator.value())
+                                        .count();
+
+                    if (time >= tc_interval)
+                    {
+                        long long n_digits = stats->hex_digits_generated - last_n_digits;
+                        this->last_n_digits = stats->hex_digits_generated;
+                        this->last_throughput_calculator = std::chrono::high_resolution_clock::now();
+
+                        this->stats->throughput = (n_digits * 1000) / time;
+                    }
+                }
+                else
+                {
+                    this->last_throughput_calculator = std::chrono::high_resolution_clock::now();
+                }
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+        }
+
         long long next_digit; // First missing digit of pi
 
         std::thread processor_thr;
@@ -153,6 +208,14 @@ namespace work_unit_combiner
 
         std::shared_ptr<file::FileWriter> file_writer;
 
+        // Stats generation
+        std::atomic<bool> run{true};
+        long long last_n_digits{0};
+        std::optional<std::chrono::high_resolution_clock::time_point> last_wu_time;
+        std::optional<std::chrono::high_resolution_clock::time_point> last_throughput_calculator;
+        Moving_Average<long long, long long, 20> wu_time_avg;
+        uint64_t tc_interval{100};
         std::shared_ptr<PMGPIeClusterStats> stats;
+        std::thread throughput_calculator_thr;
     };
 }

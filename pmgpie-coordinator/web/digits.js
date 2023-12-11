@@ -1,22 +1,10 @@
 "use strict";
 
-const add_thousands_sep = (number) => {
-  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-};
-
-const humanizeBigNumber = (number) => {
-  if (number < 1000) return number.toString();
-  else if (number < 1000000) {
-    return (number / 10).toString().substring(0, 4) + " K";
-  }
-};
-
 const update_stats = (body) => {
-  document.getElementById("hex_digits").innerHTML = add_thousands_sep(
-    body["hex_digits"]
+  document.getElementById("digits").innerText = body["digits"].substring(
+    0,
+    100
   );
-  document.getElementById("worker_nodes").innerHTML = body["worker_nodes"];
-  document.getElementById("throughput").innerHTML = body["throughput"];
   document.getElementById("connected").classList.remove("displaynone");
   document.getElementById("disconnected").classList.add("displaynone");
 };
@@ -28,7 +16,7 @@ const connect = () => {
 
   const request_stats = () => {
     if (ws.readyState == ws.OPEN) {
-      const msg = { type: "request_stats" };
+      const msg = { type: "request_digits" };
       ws.send(JSON.stringify(msg));
     }
   };
@@ -64,7 +52,7 @@ const connect = () => {
 
     const msgParsed = JSON.parse(event.data);
 
-    if (msgParsed["type"] == "publish_stats") update_stats(msgParsed["body"]);
+    if (msgParsed["type"] == "publish_digits") update_stats(msgParsed["body"]);
   };
 };
 

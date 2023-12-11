@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="shortcut icon" href="img/favicon.png" type="image/x-icon" />
     <link rel="stylesheet" href="styles.css" />
-    <script src="main.js"></script>
+    <script src="digits.js"></script>
     <title>PMGPIe Cluster Dashboard</title>
   </head>
   <body>
@@ -25,23 +25,13 @@
         <h2 class="disconnected_message">Connecting...</h2>
       </section>
       <section id="connected" class="displaynone">
-        <div class="row_container">
-          <div class="row mainrow">
-            <h1 id="hex_digits" class="bigbignumber">100.123</h1>
-            <h3 class="subtitle">HEX digits</h3>
-          </div>
-          <div class="row secondaryrow">
-            <div class="column_container">
-              <div class="column">
-                <h1 id="worker_nodes" class="bignumber green">14</h1>
-                <h3 class="subtitle">Active Worker Nodes</h3>
-              </div>
-              <div class="column">
-                <h1 id="throughput" class="bignumber pgred">244 K</h1>
-                <h3 class="subtitle">digit/s</h3>
-              </div>
-            </div>
-          </div>
+        <div class="digits">
+          <p>
+            <img src="img/pi.svg" alt="" />= 3, ...
+            <span id="digits"
+              >243f6a8885a308d313198a2e03707344a4093822299f31d00851243f6a8885a308d313198a2e03707344a4093822299f31d00851</span
+            >
+          </p>
         </div>
       </section>
     </main>

@@ -70,6 +70,8 @@ namespace frontend
             // Handle all different messages
             if (j["type"] == "request_stats")
                 send_stats(con);
+            if (j["type"] == "request_digits")
+                send_digits(con);
         }
 
         void send_stats(WebSocket *con)
@@ -80,7 +82,20 @@ namespace frontend
             j["type"] = "publish_stats";
             j["body"] = {
                 {"hex_digits", stats->hex_digits_generated},
+                {"throughput", stats->throughput},
                 {"worker_nodes", stats->worker_nodes}};
+
+            con->send(j.dump());
+        }
+
+        void send_digits(WebSocket *con)
+        {
+            nlohmann::json j;
+
+            // Construct message
+            j["type"] = "publish_digits";
+            j["body"] = {
+                {"digits", stats->last_100_digits}};
 
             con->send(j.dump());
         }

@@ -82,6 +82,13 @@
     "locale": "cpp",
     "any": "cpp",
     "deque": "cpp",
-    "*.ipp": "cpp"
+    "*.ipp": "cpp",
+    "charconv": "cpp",
+    "codecvt": "cpp",
+    "coroutine": "cpp",
+    "csignal": "cpp",
+    "source_location": "cpp",
+    "future": "cpp",
+    "span": "cpp"
   }
 }
