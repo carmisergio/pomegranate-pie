@@ -186,7 +186,7 @@ namespace work_unit_combiner
                         this->last_n_digits = stats->hex_digits_generated;
                         this->last_throughput_calculator = std::chrono::high_resolution_clock::now();
 
-                        this->stats->throughput = (n_digits * 1000) / time;
+                        this->stats->throughput = throughput_avg((n_digits * 1000) / time);
                     }
                 }
                 else
@@ -214,7 +214,8 @@ namespace work_unit_combiner
         std::optional<std::chrono::high_resolution_clock::time_point> last_wu_time;
         std::optional<std::chrono::high_resolution_clock::time_point> last_throughput_calculator;
         Moving_Average<long long, long long, 20> wu_time_avg;
-        uint64_t tc_interval{100};
+        Moving_Average<unsigned int, unsigned long, 5> throughput_avg;
+        uint64_t tc_interval{1000};
         std::shared_ptr<PMGPIeClusterStats> stats;
         std::thread throughput_calculator_thr;
     };

@@ -169,6 +169,7 @@ main #disconnected .disconnected_message {
 
 .digits p {
   width: 100%;
+  text-align: center;
   font-family: "IBM Plex Mono", sans-serif;
   font-size: 6vw;
   text-wrap: wrap;
