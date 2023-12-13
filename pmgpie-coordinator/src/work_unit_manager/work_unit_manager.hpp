@@ -163,7 +163,7 @@ namespace work_unit_manager
             for (auto &wucb : this->active_work_units)
             {
                 if (wucb.state == WorkUnitState::DISOWNED ||
-                    wucb.state == WorkUnitState::ORPHANED && std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - wucb.orphaned_time).count() < WORK_UNIT_ORPHANED_TIMEOUT)
+                    wucb.state == WorkUnitState::ORPHANED && std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - wucb.orphaned_time).count() > WORK_UNIT_ORPHANED_TIMEOUT)
                 {
                     // Get work unit info
                     res = wucb.work_unit;
