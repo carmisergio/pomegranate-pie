@@ -16,6 +16,8 @@
 #include "work_unit_combiner.hpp"
 
 #define MAX_WORK_UNIT_SIZE 5000
+#define WORK_UNIT_ORPHANED_TIMEOUT 10 // Seconds after which an orphaned
+                                      // work unit is considered eligeble for dispatch
 
 namespace work_unit_manager
 {
@@ -161,7 +163,7 @@ namespace work_unit_manager
             for (auto &wucb : this->active_work_units)
             {
                 if (wucb.state == WorkUnitState::DISOWNED ||
-                    wucb.state == WorkUnitState::ORPHANED && std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - wucb.orphaned_time).count() < 60)
+                    wucb.state == WorkUnitState::ORPHANED && std::chrono::duration_cast<std::chrono::seconds>(std::chrono::high_resolution_clock::now() - wucb.orphaned_time).count() < WORK_UNIT_ORPHANED_TIMEOUT)
                 {
                     // Get work unit info
                     res = wucb.work_unit;
